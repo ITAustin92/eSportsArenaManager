@@ -10,6 +10,7 @@ de datos, su propio CRUD y reglas de negocio que justifiquen su existencia dentr
 
 Grupo 18
 Integrantes:
+
 -Luis Ahumada
 
 -Cristian Villavicencio
