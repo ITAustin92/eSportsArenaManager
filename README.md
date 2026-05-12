@@ -8,8 +8,7 @@ El caso está diseñado para que el equipo construya una solución backend distr
 aplicación monolítica simple. Cada microservicio debe tener responsabilidad propia, su propia base
 de datos, su propio CRUD y reglas de negocio que justifiquen su existencia dentro del ecosistema.
 
-Grupo 18
-Integrantes:
+● Grupo 18:
 
 -Luis Ahumada
 
