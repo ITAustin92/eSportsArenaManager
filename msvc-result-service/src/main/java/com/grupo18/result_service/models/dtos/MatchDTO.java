@@ -1,0 +1,22 @@
+package com.grupo18.result_service.models.dtos;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class MatchDTO {
+
+    private Long matchId;
+
+    // ¡Aquí agregamos el campo que faltaba!
+    private Long tournamentId;
+
+    private Long homeTeamId;
+    private Long awayTeamId;
+    private String status;
+
+}

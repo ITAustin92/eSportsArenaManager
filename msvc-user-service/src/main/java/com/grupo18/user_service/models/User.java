@@ -1,5 +1,6 @@
 package com.grupo18.user_service.models;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,27 +10,40 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name="usuarios")
+@Table(name = "usuarios")
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
+@ToString
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usuario_id")
     private Long usuarioId;
 
-    @Column(name = "nombre_completo", nullable = false)
-    @NotBlank(message = "El campo nombre completo no puede ser vacio")
-    private String nombreCompleto;
+    @NotBlank(message = "El campo de nombre no puede ser vacio")
+    @Column(nullable = false)
+    private String nombre;
 
-    @Column(name = "nickname", nullable = false)
-    @NotBlank(message = "El campo nickname completo no puede ser vacio")
+    @NotBlank(message = "El campo de nickname no puede ser vacio")
+    @Column(nullable = false, unique = true)
     private String nickname;
 
-    @NotBlank(message = "El campo de email no puede ser vacio")
-    @Email(message = "El campo de email tiene que tener el formato de correo")
+    @NotBlank(message = "El campo de correo no puede ser vacio")
+    @Email(message = "El campo de correo tiene que tener el formato de correo")
     @Column(nullable = false, unique = true)
-    private String email;
+    private String correo;
+
+    @NotBlank(message = "El campo de rol no puede ser vacio")
+    @Column(nullable = false)
+    private String rol;
+
+    @NotBlank(message = "El campo de estado no puede estar vacio")
+    @Column(nullable = false)
+    private String estado; // Puede ser "ACTIVO", "INACTIVO" o "SANCIONADO"
+
+    // ¡Aquí está la forma exacta del profesor!
+    @Embedded
+    Audit audit = new Audit();
 }
