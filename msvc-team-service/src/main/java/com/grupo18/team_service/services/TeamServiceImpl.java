@@ -20,6 +20,12 @@ public class TeamServiceImpl implements TeamService {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Team> findAll() {
+        return this.equipoRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<Team> findByJuegoPrincipalId(Long juegoId) {
         return this.equipoRepository.findByJuegoPrincipalId(juegoId);
     }

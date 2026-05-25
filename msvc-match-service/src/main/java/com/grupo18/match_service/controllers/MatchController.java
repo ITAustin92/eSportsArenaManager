@@ -17,6 +17,13 @@ public class MatchController {
     @Autowired
     private MatchService matchService;
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Match> update(@PathVariable Long id, @Valid @RequestBody Match match) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(matchService.updateById(id, match));
+    }
+
     // Crear un nuevo partido
     // Se delega al Service toda la validación de inscripciones y torneo
     @PostMapping
@@ -42,5 +49,12 @@ public class MatchController {
     @GetMapping("/team/{teamId}")
     public ResponseEntity<List<Match>> findByTeamId(@PathVariable Long teamId) {
         return ResponseEntity.ok(matchService.findByTeamId(teamId));
+    }
+
+    // Cumple el requisito: "Cancelar partida"
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        matchService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -72,4 +72,25 @@ public class MatchServiceImpl implements MatchService {
     public List<Match> findByTeamId(Long teamId) {
         return matchRepository.findByHomeTeamIdOrAwayTeamId(teamId, teamId);
     }
+
+    @Transactional
+    @Override
+    public Match updateById(Long id, Match match) {
+        Match existing = matchRepository.findById(id)
+                .orElseThrow(() -> new MatchException("Partido no encontrado"));
+        existing.setMatchDate(match.getMatchDate());
+        existing.setStatus(match.getStatus());
+        existing.setHomeScore(match.getHomeScore());
+        existing.setAwayScore(match.getAwayScore());
+        return matchRepository.save(existing);
+    }
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        Match existing = matchRepository.findById(id)
+                .orElseThrow(() -> new MatchException("Partido no encontrado"));
+        existing.setStatus("CANCELLED");
+        matchRepository.save(existing);
+    }
 }

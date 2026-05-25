@@ -26,6 +26,12 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Autowired
     private TournamentClient tournamentClient;
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Registration> findAll() {
+        return registrationRepository.findAll();
+    }
+
     @Transactional
     @Override
     public Registration save(Registration registration) {
@@ -61,6 +67,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         return registrationRepository.save(registration);
     }
 
+    @Transactional
+    @Override
+    public Registration updateStatus(Long id, String status) {
+        Registration existing = registrationRepository.findById(id)
+                .orElseThrow(() -> new RegistrationException("Inscripción no encontrada"));
+        existing.setStatus(status);
+        return registrationRepository.save(existing);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Registration findById(Long id) {
@@ -78,5 +93,14 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public List<Registration> findByTournamentId(Long tournamentId) {
         return registrationRepository.findByTournamentId(tournamentId);
+    }
+
+    @Transactional
+    @Override
+    public void cancelById(Long id) {
+        Registration existing = registrationRepository.findById(id)
+                .orElseThrow(() -> new RegistrationException("Inscripción no encontrada"));
+        existing.setStatus("CANCELLED");
+        registrationRepository.save(existing);
     }
 }

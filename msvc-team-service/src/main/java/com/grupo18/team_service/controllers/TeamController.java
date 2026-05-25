@@ -12,12 +12,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/equipos")
+@RequestMapping("/api/v1/teams")
 @Validated
 public class TeamController {
 
     @Autowired
     private TeamService teamService;
+
+    @GetMapping
+    public ResponseEntity<List<Team>> findAll() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(teamService.findAll());
+    }
 
     // Cumple el requisito: "Crear equipo"
     @PostMapping

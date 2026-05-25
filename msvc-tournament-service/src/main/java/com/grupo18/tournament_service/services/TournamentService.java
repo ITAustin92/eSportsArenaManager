@@ -5,6 +5,7 @@ import com.grupo18.tournament_service.models.Tournament;
 import java.util.List;
 
 public interface TournamentService {
+    List<Tournament> findAll();
     Tournament save(Tournament tournament);
     Tournament findById(Long id);
     List<Tournament> findByGameId(Long gameId);

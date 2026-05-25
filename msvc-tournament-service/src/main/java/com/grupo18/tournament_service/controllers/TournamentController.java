@@ -19,6 +19,13 @@ public class TournamentController {
     @Autowired
     private TournamentService tournamentService;
 
+    @GetMapping
+    public ResponseEntity<List<Tournament>> findAll() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tournamentService.findAll());
+    }
+
     // Cumple el requisito: Crear torneo (gatillará la validación de juego y organizador vía Feign)
     @PostMapping
     public ResponseEntity<Tournament> save(@Valid @RequestBody Tournament tournament) {

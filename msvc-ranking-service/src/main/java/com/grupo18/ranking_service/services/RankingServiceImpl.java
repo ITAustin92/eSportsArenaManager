@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RankingServiceImpl implements RankingService {
@@ -73,4 +74,11 @@ public class RankingServiceImpl implements RankingService {
         newRanking.setMatchesPlayed(0);
         return newRanking;
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Ranking> findByTournamentAndTeam(Long tournamentId, Long teamId) {
+        return rankingRepository.findByTournamentIdAndTeamId(tournamentId, teamId);
+    }
+
 }

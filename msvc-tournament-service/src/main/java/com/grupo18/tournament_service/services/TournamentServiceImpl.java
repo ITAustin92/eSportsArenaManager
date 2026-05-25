@@ -28,6 +28,12 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Tournament> findAll() {
+        return this.tournamentRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Tournament findById(Long id) {
         return this.tournamentRepository.findById(id).orElseThrow(
                 () -> new TournamentException("Torneo no encontrado")
@@ -68,11 +74,11 @@ public class TournamentServiceImpl implements TournamentService {
         // 3. Regla obligatoria: Validar juego existente a través de Feign
         try {
             GameDTO game = gameClient.getGameById(tournament.getGameId());
-            if (game == null || !"ACTIVO".equalsIgnoreCase(game.getState())) {
+            if (game == null || !"ACTIVO".equalsIgnoreCase(game.getEstado())) {
                 throw new TournamentException("El juego seleccionado no es válido o no está activo");
             }
         } catch (Exception e) {
-            throw new TournamentException("Error de conexión al validar el juego en el puerto 8002: " + e.getMessage());
+            throw new TournamentException("Error de conexión al validar el juego en el puerto 8001: " + e.getMessage());
         }
 
         // 4. Regla obligatoria: Validar organizador (userId) a través de Feign

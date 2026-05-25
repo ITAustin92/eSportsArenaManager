@@ -11,4 +11,8 @@ public interface MatchService {
     List<Match> findByTournamentId(Long tournamentId);
 
     List<Match> findByTeamId(Long teamId);
+
+    Match updateById(Long id, Match match);
+
+    void deleteById(Long id);
 }

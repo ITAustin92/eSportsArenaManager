@@ -7,4 +7,7 @@ public interface RegistrationService {
     Registration findById(Long id);
     List<Registration> findByTeamId(Long teamId);
     List<Registration> findByTournamentId(Long tournamentId);
+    List<Registration> findAll();              // ← nuevo
+    Registration updateStatus(Long id, String status); // ← nuevo
+    void cancelById(Long id);
 }

@@ -5,6 +5,7 @@ import com.grupo18.team_service.models.Team;
 import java.util.List;
 
 public interface TeamService {
+    List<Team> findAll();
     List<Team> findByJuegoPrincipalId(Long juegoId);
     List<Team> findByCapitanId(Long capitanId);
     List<Team> findByEstado(String estado);

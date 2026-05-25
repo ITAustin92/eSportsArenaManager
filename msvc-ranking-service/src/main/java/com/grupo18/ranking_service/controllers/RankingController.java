@@ -27,4 +27,14 @@ public class RankingController {
     public ResponseEntity<List<Ranking>> getTournamentLeaderboard(@PathVariable Long tournamentId) {// El servicio llamará al repositorio, el cual ya tiene la instrucción de ordenar de mayor a menor
         List<Ranking> leaderboard = rankingService.getTournamentLeaderboard(tournamentId);
         return ResponseEntity.ok(leaderboard);}
+
+    // Cumple el requisito: "Buscar posición por participante"
+    @GetMapping("/tournament/{tournamentId}/team/{teamId}")
+    public ResponseEntity<Ranking> getTeamPosition(
+            @PathVariable Long tournamentId,
+            @PathVariable Long teamId) {
+        return rankingService.findByTournamentAndTeam(tournamentId, teamId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

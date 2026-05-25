@@ -13,6 +13,6 @@ public class GameDTO {
 
     private Long id;
     private String name;
-    private String state; // Vital para verificar que el juego esté "ACTIVO" antes de crear el torneo
+    private String estado; // Vital para verificar que el juego esté "ACTIVO" antes de crear el torneo
 
 }
