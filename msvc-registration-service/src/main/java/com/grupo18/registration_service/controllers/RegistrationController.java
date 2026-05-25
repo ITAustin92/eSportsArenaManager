@@ -62,4 +62,13 @@ public class RegistrationController {
         registrationService.cancelById(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Add this to RegistrationController.java
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> existsByTeamAndTournament(
+            @RequestParam Long teamId,
+            @RequestParam Long tournamentId) {
+        boolean exists = registrationService.existsByTeamIdAndTournamentId(teamId, tournamentId);
+        return ResponseEntity.ok(exists);
+    }
 }

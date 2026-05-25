@@ -10,4 +10,5 @@ public interface RegistrationService {
     List<Registration> findAll();              // ← nuevo
     Registration updateStatus(Long id, String status); // ← nuevo
     void cancelById(Long id);
+    boolean existsByTeamIdAndTournamentId(Long teamId, Long tournamentId);
 }

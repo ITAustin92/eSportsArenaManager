@@ -103,4 +103,9 @@ public class RegistrationServiceImpl implements RegistrationService {
         existing.setStatus("CANCELLED");
         registrationRepository.save(existing);
     }
+
+    @Override
+    public boolean existsByTeamIdAndTournamentId(Long teamId, Long tournamentId) {
+        return registrationRepository.findByTeamIdAndTournamentId(teamId, tournamentId).isPresent();
+    }
 }

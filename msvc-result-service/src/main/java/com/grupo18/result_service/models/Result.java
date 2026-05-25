@@ -38,7 +38,6 @@ public class Result {
     private Integer awayScore;
 
     // Estado del reporte (ej: "CONFIRMED", "PENDING_VERIFICATION")
-    @NotNull(message = "The status cannot be null")
     @Column(nullable = false)
     private String status;
 
