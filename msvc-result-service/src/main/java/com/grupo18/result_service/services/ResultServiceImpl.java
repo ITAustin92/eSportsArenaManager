@@ -79,4 +79,31 @@ public class ResultServiceImpl implements ResultService {
     public List<Result> findByWinnerTeamId(Long winnerTeamId) {
         return resultRepository.findByWinnerTeamId(winnerTeamId);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Result findById(Long id) {
+        return resultRepository.findById(id)
+                .orElseThrow(() -> new ResultException("Resultado no encontrado"));
+    }
+
+    @Transactional
+    @Override
+    public Result updateById(Long id, Result result) {
+        Result existing = resultRepository.findById(id)
+                .orElseThrow(() -> new ResultException("Resultado no encontrado"));
+        existing.setHomeScore(result.getHomeScore());
+        existing.setAwayScore(result.getAwayScore());
+        existing.setWinnerTeamId(result.getWinnerTeamId());
+        return resultRepository.save(existing);
+    }
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        Result existing = resultRepository.findById(id)
+                .orElseThrow(() -> new ResultException("Resultado no encontrado"));
+        existing.setStatus("ANULADO");
+        resultRepository.save(existing);
+    }
 }

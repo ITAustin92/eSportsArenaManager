@@ -26,6 +26,25 @@ public class ResultController {
                 .body(resultService.save(result));
     }
 
+    // Buscar resultado por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Result> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(resultService.findById(id));
+    }
+
+    // Actualizar resultado antes de validación
+    @PutMapping("/{id}")
+    public ResponseEntity<Result> update(@PathVariable Long id, @Valid @RequestBody Result result) {
+        return ResponseEntity.ok(resultService.updateById(id, result));
+    }
+
+    // Anular resultado con justificación
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        resultService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // Buscar el resultado de un partido específico por el ID del partido
     @GetMapping("/match/{matchId}")
     public ResponseEntity<Result> findByMatchId(@PathVariable Long matchId) {

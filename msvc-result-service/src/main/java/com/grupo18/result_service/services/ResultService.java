@@ -7,4 +7,7 @@ public interface ResultService {
     Result save(Result result);
     Result findByMatchId(Long matchId);
     List<Result> findByWinnerTeamId(Long winnerTeamId);
+    Result findById(Long id);
+    Result updateById(Long id, Result result);
+    void deleteById(Long id);
 }

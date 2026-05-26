@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 // Apunta al puerto 8010, que es donde vive nuestro notification-service
-@FeignClient(name = "notification-service", url = "localhost:8010/api/v1/notifications")
+@FeignClient(name = "notification-service", url = "http://localhost::8010/api/v1/notifications")
 public interface NotificationClient {
 
     /**
