@@ -18,11 +18,9 @@ import java.time.LocalDateTime;
 @ToString
 public class Audit {
 
-    // Esta columna guarda cuándo se creó la entrada en el ranking por primera vez
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Esta columna guarda cuándo fue la última vez que le sumamos puntos al equipo
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

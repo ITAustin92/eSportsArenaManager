@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "tournament-service", url = "http://localhost:8003/api/v1/tournaments")
 public interface TournamentClient {
 
-    // Método para obtener los datos del torneo (y revisar su estado)
     @GetMapping("/{id}")
     TournamentDTO getTournamentById(@PathVariable Long id);
 }

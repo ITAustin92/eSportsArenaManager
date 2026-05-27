@@ -35,13 +35,11 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Transactional
     @Override
     public Registration save(Registration registration) {
-        // 1. Regla de Negocio: Evitar duplicados (Un equipo, un torneo)
         if (registrationRepository.findByTeamIdAndTournamentId(
                 registration.getTeamId(), registration.getTournamentId()).isPresent()) {
             throw new RegistrationException("El equipo ya se encuentra inscrito en este torneo");
         }
 
-        // 2. Validación de equipo (Puerto 8002)
         try {
             TeamDTO team = teamClient.getTeamById(registration.getTeamId());
             if (team == null || !"ACTIVO".equalsIgnoreCase(team.getEstado())) {
@@ -51,7 +49,6 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new RegistrationException("Error al conectar con el servicio de equipos: " + e.getMessage());
         }
 
-        // 3. Validación de torneo (Puerto 8003)
         try {
             TournamentDTO tournament = tournamentClient.getTournamentById(registration.getTournamentId());
             if (tournament == null || !"UPCOMING".equalsIgnoreCase(tournament.getState())) {
@@ -61,7 +58,6 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new RegistrationException("Error al conectar con el servicio de torneos: " + e.getMessage());
         }
 
-        // Si todo está bien, seteamos la fecha y guardamos
         registration.setRegistrationDate(LocalDate.now());
         registration.setStatus("PENDING"); // Estado inicial
         return registrationRepository.save(registration);

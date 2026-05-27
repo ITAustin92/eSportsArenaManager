@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-// Regla de Negocio: Un equipo solo puede tener UN registro de ranking por cada torneo.
 @Table(name = "rankings", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"tournament_id", "team_id"})
 })
@@ -24,7 +23,6 @@ public class Ranking {
     @Column(name = "ranking_id")
     private Long rankingId;
 
-    // Aislamiento de IDs: Referencias a otros microservicios
     @NotNull(message = "El ID del torneo no puede ser nulo")
     @Column(name = "tournament_id", nullable = false)
     private Long tournamentId;
@@ -33,7 +31,6 @@ public class Ranking {
     @Column(name = "team_id", nullable = false)
     private Long teamId;
 
-    // Estadísticas del equipo en el torneo
     @Min(value = 0, message = "Los puntos no pueden ser negativos")
     @Column(nullable = false)
     private Integer points = 0; // Por defecto empiezan en 0

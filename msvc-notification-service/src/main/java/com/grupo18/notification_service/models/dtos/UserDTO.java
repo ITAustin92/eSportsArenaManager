@@ -16,8 +16,6 @@ public class UserDTO {
     private Long id;
     private String name;
     private String lastName;
-
-    // ¡LA PIEZA CLAVE! Necesitamos el correo para la "simulación de envío"
     private String email;
 
 }

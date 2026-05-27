@@ -24,7 +24,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Notification processNotification(NotificationRequestDTO request) {
 
-        // 1. Desempacar el DTO y crear la entidad Notification para la base de datos
         Notification notification = new Notification();
         notification.setUserId(request.getUserId());
         notification.setTeamId(request.getTeamId());
@@ -34,14 +33,11 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setMessage(request.getMessage());
         notification.setStatus("PENDING"); // Iniciamos asumiendo que está en cola
 
-        // Guardamos el registro inicial en la base de datos para tener la trazabilidad
         notification = notificationRepository.save(notification);
 
         try {
-            // 2. REGLA DE NEGOCIO: Rescatar el Email y Simular el Envío
-            String emailDestino = "alertas_equipo@torneo.com"; // Correo por defecto si el mensaje es grupal (teamId)
+            String emailDestino = "alertas_equipo@torneo.com";
 
-            // Si viene con un userId específico, le preguntamos el correo al user-service
             if (notification.getUserId() != null) {
                 UserDTO user = userClient.getUserById(notification.getUserId());
                 if (user != null && user.getEmail() != null) {
@@ -49,25 +45,20 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }
 
-            // --- INICIO DE SIMULACIÓN (Esto se verá en tu terminal de Java) ---
             System.out.println("\n==================================================");
             System.out.println("🔔 [NOTIFICATION-SERVICE] PROCESANDO ALERTA...");
             System.out.println("📩 Destino: " + emailDestino);
             System.out.println("📌 Asunto: " + notification.getSubject());
             System.out.println("📝 Mensaje: " + notification.getMessage());
             System.out.println("==================================================\n");
-            // --- FIN DE SIMULACIÓN ---
 
-            // 3. Si no hubo errores, cambiamos el estado a enviado
             notification.setStatus("SENT");
 
         } catch (Exception e) {
-            // Si el user-service está apagado o falla la red, atrapamos el error
             System.out.println("❌ ERROR: Falló el envío de la notificación - " + e.getMessage());
             notification.setStatus("FAILED");
         }
 
-        // 4. Actualizamos la notificación en la base de datos con su estado final
         return notificationRepository.save(notification);
     }
 

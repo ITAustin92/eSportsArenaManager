@@ -15,6 +15,6 @@ public class TournamentDTO {
 
     private Long tournamentId;
     private String name;
-    private String state; // Indispensable para saber si el torneo está "FINISHED" antes de repartir los premios
+    private String state;
 
 }

@@ -13,13 +13,11 @@ import lombok.ToString;
 @AllArgsConstructor
 public class NotificationRequestDTO {
 
-    // ¿A quién va dirigido? (Pueden ir nulos dependiendo del evento)
     private Long userId;
     private Long teamId;
     private Long tournamentId;
 
-    // ¿Qué dice el mensaje?
-    private String type; // Ej: "EMAIL", "SYSTEM_ALERT"
+    private String type;
     private String subject;
     private String message;
 

@@ -13,6 +13,6 @@ public class TournamentDTO {
 
     private Long tournamentId;
     private String name;
-    private String state; // Vital para saber si el torneo ya terminó y congelar los puntos
+    private String state;
 
 }
