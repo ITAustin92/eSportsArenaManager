@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 // Apuntamos al puerto 8001 y a la ruta de los usuarios en inglés
-@FeignClient(name="user-service", url = "http://localhost::8000/api/v1/users")
+@FeignClient(name="user-service", url = "http://localhost:8000/api/v1/users")
 public interface UserClient {
 
     // Método calcado al del profe: pide un usuario por ID
