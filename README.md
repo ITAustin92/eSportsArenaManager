@@ -40,6 +40,46 @@ Cada servicio expone su consola en `http://localhost:{puerto}/h2-console`
 JDBC URL: `jdbc:h2:file:./data/{nombre}` (ej: `jdbc:h2:file:./data/game`)  
 Usuario: `sa` | Contraseña: `sa`
 
+## Arquitectura
+
+El sistema implementa una arquitectura distribuida basada en microservicios.
+
+Cada servicio posee:
+- responsabilidad única
+- persistencia independiente
+- endpoints REST
+- comunicación desacoplada mediante OpenFeign
+
+La arquitectura sigue el patrón CSR:
+- Controller
+- Service
+- Repository
+
+## Reglas de Negocio
+
+### Registration-Service
+- No permite inscripciones duplicadas
+- Verifica cupos disponibles
+- Valida sanciones activas
+- Verifica estado del torneo
+
+### Ranking-Service
+- Actualiza posiciones automáticamente
+- Calcula victorias y puntajes
+
+### Prize-Service
+- Distribuye premios según ranking final
+
+## Manejo de Excepciones
+
+El sistema implementa manejo centralizado de excepciones mediante:
+
+- @RestControllerAdvice
+- @ExceptionHandler
+- ResponseEntity
+
+permitiendo respuestas HTTP consistentes.
+
 ## Endpoints principales
 
 ### user-service (8000)
