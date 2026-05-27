@@ -17,5 +17,5 @@ public class RegistrationDTO {
     private Long teamId;
     private Long tournamentId;
     private LocalDate registrationDate;
-    private String status; // Importante: "CONFIRMED" o "PENDING"
+    private String status;
 }

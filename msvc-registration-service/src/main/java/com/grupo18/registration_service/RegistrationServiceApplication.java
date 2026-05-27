@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients; // ¡Importante importar esto!
 
 @SpringBootApplication
-@EnableFeignClients // <--- ¡Esta es la llave mágica!
+@EnableFeignClients
 public class RegistrationServiceApplication {
 
 	public static void main(String[] args) {
