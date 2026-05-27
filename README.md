@@ -154,3 +154,6 @@ Usuario: `sa` | Contraseña: `sa`
 | GET | /api/v1/notifications/team/{teamId} | Por equipo |
 | GET | /api/v1/notifications/tournament/{tournamentId} | Por torneo |
 | POST | /api/v1/notifications/send | Enviar notificación |
+
+Tablero de Trello del Proyecto:
+https://trello.com/b/LwwCThWS/proyecto-esports
