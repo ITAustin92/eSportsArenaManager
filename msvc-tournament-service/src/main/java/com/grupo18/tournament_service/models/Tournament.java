@@ -29,7 +29,7 @@ public class Tournament {
     @Column(nullable = false, unique = true)
     private String name;
 
-    // Conexión lógica con el game-service
+
     @NotNull(message = "The game ID cannot be null")
     @Column(name = "game_id", nullable = false)
     private Long gameId;
@@ -49,7 +49,7 @@ public class Tournament {
 
     @NotBlank(message = "The tournament state cannot be empty")
     @Column(nullable = false)
-    private String state; // Ejemplo: "UPCOMING", "IN_PROGRESS", "FINISHED"
+    private String state;
 
     @Embedded
     private Audit audit = new Audit();

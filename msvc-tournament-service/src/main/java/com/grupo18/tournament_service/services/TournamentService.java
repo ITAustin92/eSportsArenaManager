@@ -12,5 +12,5 @@ public interface TournamentService {
     List<Tournament> findByOrganizerId(Long organizerId);
     List<Tournament> findByState(String state);
     Tournament updateById(Long id, Tournament tournament);
-    void deleteById(Long id); // Para la desactivación lógica
+    void deleteById(Long id);
 }

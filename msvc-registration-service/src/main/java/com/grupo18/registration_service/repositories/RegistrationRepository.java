@@ -9,12 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface RegistrationRepository extends JpaRepository<Registration, Long> {
-
     Optional<Registration> findByTeamIdAndTournamentId(Long teamId, Long tournamentId);
-
     List<Registration> findByTournamentId(Long tournamentId);
-
     List<Registration> findByTeamId(Long teamId);
-
     List<Registration> findByStatus(String status);
 }

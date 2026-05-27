@@ -43,7 +43,7 @@ public class User {
     @Column(nullable = false)
     private String estado; // Puede ser "ACTIVO", "INACTIVO" o "SANCIONADO"
 
-    // ¡Aquí está la forma exacta del profesor!
+
     @Embedded
     Audit audit = new Audit();
 }

@@ -24,9 +24,11 @@ public class Registration {
     @Column(name = "registration_id")
     private Long registrationId;
 
+
     @NotNull(message = "The team ID cannot be null")
     @Column(name = "team_id", nullable = false)
     private Long teamId;
+
 
     @NotNull(message = "The tournament ID cannot be null")
     @Column(name = "tournament_id", nullable = false)

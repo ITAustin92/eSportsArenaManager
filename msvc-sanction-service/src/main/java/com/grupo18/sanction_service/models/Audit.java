@@ -18,11 +18,9 @@ import java.time.LocalDateTime;
 @ToString
 public class Audit {
 
-    // Guarda el momento exacto en el que se emitió la sanción por primera vez
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Guarda el momento en el que la sanción se modifica (ej: si se apela y se reduce el castigo)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

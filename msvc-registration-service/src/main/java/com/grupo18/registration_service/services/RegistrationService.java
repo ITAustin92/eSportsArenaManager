@@ -7,8 +7,8 @@ public interface RegistrationService {
     Registration findById(Long id);
     List<Registration> findByTeamId(Long teamId);
     List<Registration> findByTournamentId(Long tournamentId);
-    List<Registration> findAll();              // ← nuevo
-    Registration updateStatus(Long id, String status); // ← nuevo
+    List<Registration> findAll();
+    Registration updateStatus(Long id, String status);
     void cancelById(Long id);
     boolean existsByTeamIdAndTournamentId(Long teamId, Long tournamentId);
 }

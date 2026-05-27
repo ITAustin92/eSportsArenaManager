@@ -16,8 +16,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // No inyectamos ningún Client aquí porque user-service no consume a nadie
-
     @Transactional(readOnly = true)
     @Override
     public List<User> findAll() {
@@ -51,7 +49,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User save(User usuario) {
-        // Replicamos la validación del profe: verificamos que correo o nickname no se repitan
+
         if(this.userRepository.findByCorreo(usuario.getCorreo()).isPresent()){
             throw new UserException("Usuario ya existe");
         }
@@ -64,7 +62,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteById(Long id) {
-        // Al no tener dependencias directas en este punto, eliminamos directo
         this.userRepository.deleteById(id);
     }
 
@@ -73,17 +70,17 @@ public class UserServiceImpl implements UserService {
     public User updateById(Long id, User usuario) {
         return this.userRepository.findById(id).map(element -> {
 
-            // Si el jugador quiere cambiar su nickname por uno nuevo, validamos que no esté ocupado
+
             if (!element.getNickname().equals(usuario.getNickname()) &&
                     this.userRepository.findByNickname(usuario.getNickname()).isPresent()) {
                 throw new UserException("El nuevo nickname ya está en uso por otro jugador");
             }
 
             element.setNombre(usuario.getNombre());
-            element.setNickname(usuario.getNickname()); // ¡Ahora sí dejamos que lo cambie!
+            element.setNickname(usuario.getNickname());
             element.setCorreo(usuario.getCorreo());
             element.setRol(usuario.getRol());
-            element.setEstado(usuario.getEstado()); // Agregamos la actualización del estado
+            element.setEstado(usuario.getEstado());
 
             return this.userRepository.save(element);
         }).orElseThrow(

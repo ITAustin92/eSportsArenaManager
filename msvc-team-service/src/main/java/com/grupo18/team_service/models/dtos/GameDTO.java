@@ -10,8 +10,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class GameDTO {
-    // Ponemos solo lo básico que necesitamos saber del juego para validar
     private Long gameId;
     private String name;
-    private String state; // Para saber si está ACTIVO o INACTIVO
+    private String state;
 }

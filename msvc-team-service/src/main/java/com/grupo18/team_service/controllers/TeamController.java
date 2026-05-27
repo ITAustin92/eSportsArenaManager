@@ -26,7 +26,7 @@ public class TeamController {
                 .body(teamService.findAll());
     }
 
-    // Cumple el requisito: "Crear equipo"
+
     @PostMapping
     public ResponseEntity<Team> save(@Valid @RequestBody Team equipo) {
         return ResponseEntity
@@ -34,7 +34,7 @@ public class TeamController {
                 .body(teamService.save(equipo));
     }
 
-    // Cumple el requisito: "Buscar equipo por ID"
+
     @GetMapping("/{id}")
     public ResponseEntity<Team> findById(@PathVariable Long id) {
         return ResponseEntity
@@ -42,7 +42,7 @@ public class TeamController {
                 .body(teamService.findById(id));
     }
 
-    // Cumple el requisito: "Listar equipos por juego"
+
     @GetMapping("/juego/{juegoId}")
     public ResponseEntity<List<Team>> findByJuego(@PathVariable Long juegoId) {
         return ResponseEntity
@@ -50,7 +50,7 @@ public class TeamController {
                 .body(teamService.findByJuegoPrincipalId(juegoId));
     }
 
-    // Cumple el requisito: "Listar equipos por capitán"
+
     @GetMapping("/capitan/{capitanId}")
     public ResponseEntity<List<Team>> findByCapitan(@PathVariable Long capitanId) {
         return ResponseEntity
@@ -58,7 +58,7 @@ public class TeamController {
                 .body(teamService.findByCapitanId(capitanId));
     }
 
-    // Cumple el requisito: "Listar equipos por estado" (ej: traer los ACTIVO o INACTIVO)
+
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<Team>> findByEstado(@PathVariable String estado) {
         return ResponseEntity
@@ -66,7 +66,7 @@ public class TeamController {
                 .body(teamService.findByEstado(estado));
     }
 
-    // Cumple el requisito: "Actualizar nombre, capitán o integrantes"
+
     @PutMapping("/{id}")
     public ResponseEntity<Team> update(@PathVariable Long id, @Valid @RequestBody Team equipo) {
         return ResponseEntity
@@ -74,7 +74,7 @@ public class TeamController {
                 .body(teamService.updateById(id, equipo));
     }
 
-    // Cumple el requisito: "Desactivar equipo"
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         teamService.deleteById(id);

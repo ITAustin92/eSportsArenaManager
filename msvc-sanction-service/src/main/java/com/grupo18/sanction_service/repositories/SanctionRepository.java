@@ -8,16 +8,8 @@ import java.util.List;
 
 @Repository
 public interface SanctionRepository extends JpaRepository<Sanction, Long> {
-
-
     List<Sanction> findByTournamentId(Long tournamentId);
-
-
     List<Sanction> findByTeamId(Long teamId);
-
-
     List<Sanction> findByUserId(Long userId);
-
-
     List<Sanction> findByTournamentIdAndUserId(Long tournamentId, Long userId);
 }

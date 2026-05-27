@@ -27,5 +27,5 @@ public class MemberTeam {
 
     @NotBlank(message = "El campo rol dentro del equipo no puede ser vacio")
     @Column(name = "rol_dentro_equipo", nullable = false)
-    private String rolDentroEquipo; // Ejemplo: "Soporte", "Tirador", "Estratega"
+    private String rolDentroEquipo;
 }

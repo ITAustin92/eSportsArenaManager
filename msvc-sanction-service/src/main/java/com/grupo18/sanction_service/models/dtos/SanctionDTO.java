@@ -14,8 +14,8 @@ public class SanctionDTO {
     private Long sanctionId;
     private Long tournamentId;
     private Long teamId;
-    private Long matchId; // Puede ir vacío si la falta fue fuera de un partido
-    private Long userId;  // El infractor (jugador, técnico, etc.)
+    private Long matchId;
+    private Long userId;
 
     private String type;
     private String reason;

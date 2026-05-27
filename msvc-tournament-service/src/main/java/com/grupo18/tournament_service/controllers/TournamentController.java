@@ -26,7 +26,7 @@ public class TournamentController {
                 .body(tournamentService.findAll());
     }
 
-    // Cumple el requisito: Crear torneo (gatillará la validación de juego y organizador vía Feign)
+
     @PostMapping
     public ResponseEntity<Tournament> save(@Valid @RequestBody Tournament tournament) {
         return ResponseEntity
@@ -34,7 +34,7 @@ public class TournamentController {
                 .body(tournamentService.save(tournament));
     }
 
-    // Cumple el requisito: Buscar torneo por ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Tournament> findById(@PathVariable Long id) {
         return ResponseEntity
@@ -42,7 +42,7 @@ public class TournamentController {
                 .body(tournamentService.findById(id));
     }
 
-    // Ruta semántica: Listar torneos por juego
+
     @GetMapping("/game/{gameId}")
     public ResponseEntity<List<Tournament>> findByGameId(@PathVariable Long gameId) {
         return ResponseEntity
@@ -50,7 +50,7 @@ public class TournamentController {
                 .body(tournamentService.findByGameId(gameId));
     }
 
-    // Ruta semántica: Listar torneos por organizador
+
     @GetMapping("/organizer/{organizerId}")
     public ResponseEntity<List<Tournament>> findByOrganizerId(@PathVariable Long organizerId) {
         return ResponseEntity
@@ -58,7 +58,7 @@ public class TournamentController {
                 .body(tournamentService.findByOrganizerId(organizerId));
     }
 
-    // Ruta semántica: Listar torneos por estado (ej: UPCOMING, FINISHED)
+
     @GetMapping("/state/{state}")
     public ResponseEntity<List<Tournament>> findByState(@PathVariable String state) {
         return ResponseEntity
@@ -66,7 +66,7 @@ public class TournamentController {
                 .body(tournamentService.findByState(state));
     }
 
-    // Cumple el requisito: Actualizar torneo
+
     @PutMapping("/{id}")
     public ResponseEntity<Tournament> update(@PathVariable Long id, @Valid @RequestBody Tournament tournament) {
         return ResponseEntity
@@ -74,10 +74,10 @@ public class TournamentController {
                 .body(tournamentService.updateById(id, tournament));
     }
 
-    // Cumple el requisito: Desactivación lógica del torneo
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         tournamentService.deleteById(id);
-        return ResponseEntity.noContent().build(); // Retorna un 204 sin cuerpo
+        return ResponseEntity.noContent().build();
     }
 }

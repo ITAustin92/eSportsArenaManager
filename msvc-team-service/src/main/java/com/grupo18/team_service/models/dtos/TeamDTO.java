@@ -20,6 +20,6 @@ public class TeamDTO {
     private Long juegoPrincipalId;
     private String estado;
 
-    // Lista para recibir a los jugadores desde Postman
+
     private List<MemberTeam> miembros;
 }

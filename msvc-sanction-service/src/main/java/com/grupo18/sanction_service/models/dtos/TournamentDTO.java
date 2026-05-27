@@ -13,6 +13,6 @@ public class TournamentDTO {
 
     private Long tournamentId;
     private String name;
-    private String state; // Para saber si el torneo sigue activo al poner la sanción
+    private String state;
 
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "msvc-team-service", url = "http://localhost:8002/api/v1/teams")
 public interface TeamClient {
 
-    // Trae los datos del equipo sancionado (nombre)
+
     @GetMapping("/{id}")
     TeamDTO getTeamById(@PathVariable("id") Long id);
 }
