@@ -11,9 +11,9 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDTO {
 
-    private Long id; // El userId que viene del microservicio de usuarios
+    private Long id;
     private String nickname;
-    private String state; // Para validar que el organizador no esté "SANCIONADO" o "INACTIVO"
-    private String role; // (Opcional) Por si tu profesor exige validar que el usuario tenga rol "ORGANIZADOR" o "ADMIN"
+    private String state;
+    private String role;
 
 }

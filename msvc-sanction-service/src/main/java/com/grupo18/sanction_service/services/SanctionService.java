@@ -5,14 +5,13 @@ import java.util.List;
 
 public interface SanctionService {
 
-    // CRUD Básico
+
     Sanction save(Sanction sanction);
     Sanction findById(Long id);
     List<Sanction> findAll();
     Sanction updateStatus(Long id, String newStatus);
     void deleteById(Long id);
 
-    // Filtros de regla de negocio
     List<Sanction> findByTournamentId(Long tournamentId);
     List<Sanction> findByTeamId(Long teamId);
     List<Sanction> findByUserId(Long userId);

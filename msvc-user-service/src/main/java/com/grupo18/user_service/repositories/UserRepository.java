@@ -10,13 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
-    // Método que me permite buscar por el nickname del jugador
     Optional<User> findByNickname(String nickname);
-
-    // Método que me permite buscar por el correo electrónico del usuario
     Optional<User> findByCorreo(String correo);
-
     List<User> findByRol(String rol);
     List<User> findByEstado(String estado);
 }

@@ -33,19 +33,19 @@ public class SanctionServiceImpl implements SanctionService {
     @Override
     public Sanction save(Sanction sanction) {
 
-        // 1. Validar el contexto del Torneo
+
         TournamentDTO tournament = tournamentClient.getTournamentById(sanction.getTournamentId());
         if (tournament == null) {
             throw new RuntimeException("Error: El torneo indicado no existe.");
         }
 
-        // 2. Validar la asociación al Equipo
+
         TeamDTO team = teamClient.getTeamById(sanction.getTeamId());
         if (team == null) {
             throw new RuntimeException("Error: El equipo indicado no existe.");
         }
 
-        // 3. Validar la asociación al Usuario (Solo si se envió un infractor específico)
+
         if (sanction.getUserId() != null) {
             UserDTO user = userClient.getUserById(sanction.getUserId());
             if (user == null) {
@@ -53,7 +53,7 @@ public class SanctionServiceImpl implements SanctionService {
             }
         }
 
-        // Si pasa las tres validaciones, guardamos el castigo
+
         return sanctionRepository.save(sanction);
     }
 
@@ -73,7 +73,6 @@ public class SanctionServiceImpl implements SanctionService {
     @Transactional
     @Override
     public Sanction updateStatus(Long id, String newStatus) {
-        // Regla de negocio: Actualizar el estado (ej: de ACTIVE a APPEALED)
         Sanction existingSanction = findById(id);
         existingSanction.setStatus(newStatus);
         return sanctionRepository.save(existingSanction);
@@ -86,7 +85,6 @@ public class SanctionServiceImpl implements SanctionService {
         sanctionRepository.delete(sanction);
     }
 
-    // --- Métodos de búsqueda (Filtros) ---
 
     @Transactional(readOnly = true)
     @Override

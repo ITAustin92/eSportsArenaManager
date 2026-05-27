@@ -24,12 +24,12 @@ public class Registration {
     @Column(name = "registration_id")
     private Long registrationId;
 
-    // Conexión lógica con el team-service
+
     @NotNull(message = "The team ID cannot be null")
     @Column(name = "team_id", nullable = false)
     private Long teamId;
 
-    // Conexión lógica con el tournament-service
+
     @NotNull(message = "The tournament ID cannot be null")
     @Column(name = "tournament_id", nullable = false)
     private Long tournamentId;
@@ -40,7 +40,7 @@ public class Registration {
 
     @NotBlank(message = "The registration status cannot be empty")
     @Column(nullable = false)
-    private String status; // Ejemplo: "PENDING", "CONFIRMED", "CANCELED"
+    private String status;
 
     @Embedded
     private Audit audit = new Audit();

@@ -29,7 +29,7 @@ public class Team {
     @Column(nullable = false, unique = true)
     private String nombre;
 
-    // Regla de negocio: Un equipo debe tener capitán obligatoriamente
+
     @NotNull(message = "El campo capitan no puede ser nulo")
     @Column(name = "capitan_id", nullable = false)
     private Long capitanId;
@@ -40,9 +40,9 @@ public class Team {
 
     @NotBlank(message = "El campo estado no puede ser vacio")
     @Column(nullable = false)
-    private String estado; // Ejemplo: "ACTIVO", "INACTIVO"
+    private String estado;
 
-    // Relación OneToMany: Un equipo tiene una lista de miembros
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "equipo_id")
     private List<MemberTeam> miembros = new ArrayList<>();

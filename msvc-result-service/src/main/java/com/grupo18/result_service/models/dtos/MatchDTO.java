@@ -11,10 +11,7 @@ import lombok.ToString;
 public class MatchDTO {
 
     private Long matchId;
-
-    // ¡Aquí agregamos el campo que faltaba!
     private Long tournamentId;
-
     private Long homeTeamId;
     private Long awayTeamId;
     private String status;

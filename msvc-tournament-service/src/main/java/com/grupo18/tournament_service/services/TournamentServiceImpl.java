@@ -19,7 +19,7 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
 
-    // Inyectamos las "aduanas" para hablar con los otros microservicios
+
     @Autowired
     private GameClient gameClient;
 
@@ -61,17 +61,17 @@ public class TournamentServiceImpl implements TournamentService {
     @Transactional
     @Override
     public Tournament save(Tournament tournament) {
-        // 1. Regla: Nombre de torneo único
+
         if (this.tournamentRepository.findByName(tournament.getName()).isPresent()) {
             throw new TournamentException("El nombre del torneo ya está registrado");
         }
 
-        // 2. Regla: Fechas lógicas (La fecha de fin no puede ser antes que la de inicio)
+
         if (tournament.getEndDate().isBefore(tournament.getStartDate())) {
             throw new TournamentException("La fecha de término no puede ser anterior a la de inicio");
         }
 
-        // 3. Regla obligatoria: Validar juego existente a través de Feign
+
         try {
             GameDTO game = gameClient.getGameById(tournament.getGameId());
             if (game == null || !"ACTIVO".equalsIgnoreCase(game.getEstado())) {
@@ -81,7 +81,7 @@ public class TournamentServiceImpl implements TournamentService {
             throw new TournamentException("Error de conexión al validar el juego en el puerto 8001: " + e.getMessage());
         }
 
-        // 4. Regla obligatoria: Validar organizador (userId) a través de Feign
+
         try {
             UserDTO organizer = userClient.getUserById(tournament.getOrganizerId());
             if (organizer == null || "SANCIONADO".equalsIgnoreCase(organizer.getState()) || "INACTIVO".equalsIgnoreCase(organizer.getState())) {
@@ -91,7 +91,7 @@ public class TournamentServiceImpl implements TournamentService {
             throw new TournamentException("Error de conexión al validar al organizador en el puerto 8001: " + e.getMessage());
         }
 
-        // Si sobrevive a todas las validaciones, lo guardamos
+
         return this.tournamentRepository.save(tournament);
     }
 
@@ -100,25 +100,22 @@ public class TournamentServiceImpl implements TournamentService {
     public Tournament updateById(Long id, Tournament tournament) {
         return this.tournamentRepository.findById(id).map(element -> {
 
-            // Validar que el nuevo nombre no choque con otro existente
+
             if (!element.getName().equals(tournament.getName()) &&
                     this.tournamentRepository.findByName(tournament.getName()).isPresent()) {
                 throw new TournamentException("El nuevo nombre ya está ocupado por otro torneo");
             }
 
-            // Validar de nuevo la regla de las fechas
+
             if (tournament.getEndDate().isBefore(tournament.getStartDate())) {
                 throw new TournamentException("La fecha de término no puede ser anterior a la de inicio");
             }
 
-            // Actualizamos los campos
             element.setName(tournament.getName());
             element.setStartDate(tournament.getStartDate());
             element.setEndDate(tournament.getEndDate());
             element.setState(tournament.getState());
 
-            // Por seguridad y buenas prácticas de negocio, normalmente el organizador y el juego
-            // no se cambian una vez creado el torneo, por eso no les hacemos ".set" aquí.
 
             return this.tournamentRepository.save(element);
         }).orElseThrow(
@@ -129,9 +126,8 @@ public class TournamentServiceImpl implements TournamentService {
     @Transactional
     @Override
     public void deleteById(Long id) {
-        // Desactivación lógica (borrado blando)
         Tournament tournament = this.findById(id);
-        tournament.setState("CANCELLED"); // o "INACTIVO" según prefieras
+        tournament.setState("CANCELLED");
         this.tournamentRepository.save(tournament);
     }
 }

@@ -34,7 +34,7 @@ public class UserController {
                 .body(userService.findById(id));
     }
 
-    // Adaptado al caso eSports: En vez de RUT, buscamos por el nickname del jugador
+
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<User> findByNickname(@PathVariable String nickname) {
         return ResponseEntity

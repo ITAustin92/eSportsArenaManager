@@ -22,7 +22,7 @@ public class Sanction {
     @Column(name = "sanction_id")
     private Long sanctionId;
 
-    // --- REGLAS DE NEGOCIO: AISLAMIENTO Y REFERENCIAS ---
+
 
     @NotNull(message = "El ID del torneo es obligatorio")
     @Column(name = "tournament_id", nullable = false)
@@ -32,16 +32,14 @@ public class Sanction {
     @Column(name = "team_id", nullable = false)
     private Long teamId;
 
-    // Nota: matchId puede ser nulo, porque a veces un equipo es sancionado
-    // fuera de un partido (ej: problemas administrativos)
+
     @Column(name = "match_id")
     private Long matchId;
 
-    // Nota: playerId puede ser nulo si la sanción es para todo el equipo
+
     @Column(name = "user_id")
     private Long userId;
 
-    // --- REGLAS DE NEGOCIO: DETALLES DEL CASTIGO ---
 
     @NotBlank(message = "Debe especificar el tipo de sanción (ej: RED_CARD, FINE, SUSPENSION)")
     @Column(nullable = false)
@@ -61,9 +59,8 @@ public class Sanction {
 
     @NotBlank(message = "El estado de la sanción no puede estar vacío")
     @Column(nullable = false)
-    private String status = "ACTIVE"; // Ej: "ACTIVE" (Vigente), "SERVED" (Cumplida), "APPEALED" (Apelada)
+    private String status = "ACTIVE";
 
-    // --- AUDITORÍA ---
     @Embedded
     private Audit audit = new Audit();
 }

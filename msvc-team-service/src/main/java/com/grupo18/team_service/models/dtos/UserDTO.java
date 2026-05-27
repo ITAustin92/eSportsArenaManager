@@ -11,8 +11,8 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDTO {
 
-    private Long id; // El ID del usuario que viene desde el otro microservicio
-    private String nickname; // El nombre de jugador del capitán
-    private String state; // Vital para validar que el jugador no esté "SANCIONADO"
+    private Long id;
+    private String nickname;
+    private String state;
 
 }
