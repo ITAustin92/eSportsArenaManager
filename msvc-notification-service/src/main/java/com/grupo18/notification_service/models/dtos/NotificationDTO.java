@@ -1,0 +1,26 @@
+package com.grupo18.notification_service.models.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class NotificationDTO {
+
+    private Long notificationId;
+    private Long userId;
+    private Long teamId;
+    private Long tournamentId;
+
+    private String type;
+    private String subject;
+    private String message;
+    private String status;
+
+}
