@@ -61,7 +61,6 @@ public class PrizeServiceImpl implements PrizeService {
         return prizeRepository.findByTeamId(teamId);
     }
 
-    // --- MAGIA DE LA REGLA DE NEGOCIO ---
 
     @Transactional
     @Override

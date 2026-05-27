@@ -31,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setType(request.getType() != null ? request.getType() : "SYSTEM_ALERT");
         notification.setSubject(request.getSubject());
         notification.setMessage(request.getMessage());
-        notification.setStatus("PENDING"); // Iniciamos asumiendo que está en cola
+        notification.setStatus("PENDING");
 
         notification = notificationRepository.save(notification);
 
@@ -41,21 +41,21 @@ public class NotificationServiceImpl implements NotificationService {
             if (notification.getUserId() != null) {
                 UserDTO user = userClient.getUserById(notification.getUserId());
                 if (user != null && user.getEmail() != null) {
-                    emailDestino = user.getEmail(); // ¡Rescatamos el correo real!
+                    emailDestino = user.getEmail();
                 }
             }
 
             System.out.println("\n==================================================");
             System.out.println("🔔 [NOTIFICATION-SERVICE] PROCESANDO ALERTA...");
-            System.out.println("📩 Destino: " + emailDestino);
-            System.out.println("📌 Asunto: " + notification.getSubject());
-            System.out.println("📝 Mensaje: " + notification.getMessage());
+            System.out.println("Destino: " + emailDestino);
+            System.out.println("Asunto: " + notification.getSubject());
+            System.out.println("Mensaje: " + notification.getMessage());
             System.out.println("==================================================\n");
 
             notification.setStatus("SENT");
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR: Falló el envío de la notificación - " + e.getMessage());
+            System.out.println("ERROR: Falló el envío de la notificación - " + e.getMessage());
             notification.setStatus("FAILED");
         }
 
