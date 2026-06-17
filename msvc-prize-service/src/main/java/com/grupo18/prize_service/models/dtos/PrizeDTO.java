@@ -15,7 +15,7 @@ public class PrizeDTO {
 
     private Long prizeId;
     private Long tournamentId;
-    private Long teamId; // ID del equipo que ganó el premio según el ranking
+    private Long teamId;
 
     private String description;
     private String type;

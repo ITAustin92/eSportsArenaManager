@@ -27,30 +27,26 @@ public class MatchServiceImpl implements MatchService {
     @Transactional
     @Override
     public Match save(Match match) {
-        // 1. Validar Torneo (Puerto 8003)
         TournamentDTO tournament = tournamentClient.getTournamentById(match.getTournamentId());
         if (tournament == null || !"UPCOMING".equalsIgnoreCase(tournament.getState()) && !"IN_PROGRESS".equalsIgnoreCase(tournament.getState())) {
             throw new MatchException("El torneo no existe o no permite nuevos partidos");
         }
 
-        // 2. Validar inscripción del equipo Local (Puerto 8004)
         boolean isHomeRegistered = registrationClient.isTeamRegisteredInTournament(match.getHomeTeamId(), match.getTournamentId());
         if (!isHomeRegistered) {
             throw new MatchException("El equipo local no está inscrito en este torneo");
         }
 
-        // 3. Validar inscripción del equipo Visitante (Puerto 8004)
         boolean isAwayRegistered = registrationClient.isTeamRegisteredInTournament(match.getAwayTeamId(), match.getTournamentId());
         if (!isAwayRegistered) {
             throw new MatchException("El equipo visitante no está inscrito en este torneo");
         }
 
-        // 4. Regla: Un equipo no puede jugar contra sí mismo
         if (match.getHomeTeamId().equals(match.getAwayTeamId())) {
             throw new MatchException("Un equipo no puede jugar contra sí mismo");
         }
 
-        match.setStatus("SCHEDULED"); // Estado inicial
+        match.setStatus("SCHEDULED");
         return matchRepository.save(match);
     }
 

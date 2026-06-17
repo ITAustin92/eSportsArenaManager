@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "msvc-user-service", url = "http://localhost:8000/api/v1/users")
 public interface UserClient {
 
-    /**
-
-     Trae los datos del usuario (incluyendo su email)
-     para poder simular el envío del correo electrónico.*/@GetMapping("/{id}")
+    @GetMapping("/{id}")
     UserDTO getUserById(@PathVariable("id") Long id);
 }

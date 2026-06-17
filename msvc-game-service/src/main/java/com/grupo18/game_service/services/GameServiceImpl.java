@@ -19,7 +19,7 @@ public class GameServiceImpl implements GameService {
     @Transactional(readOnly = true)
     @Override
     public List<Game> findByEstado(String estado) {
-        // Cumple la regla: "Listar juegos activos"
+
         return this.gameRepository.findByEstado(estado);
     }
 
@@ -34,7 +34,6 @@ public class GameServiceImpl implements GameService {
     @Transactional
     @Override
     public Game save(Game juego) {
-        // Cumple la regla de negocio: "Nombre de juego único"
         if(this.gameRepository.findByNombre(juego.getNombre()).isPresent()){
             throw new GameException("El nombre del juego ya existe");
         }
@@ -44,7 +43,6 @@ public class GameServiceImpl implements GameService {
     @Transactional
     @Override
     public void deleteById(Long id) {
-        // El caso exige "Desactivar juego" en lugar de eliminarlo físicamente
         Game juego = this.findById(id);
         juego.setEstado("INACTIVO");
 
@@ -54,12 +52,10 @@ public class GameServiceImpl implements GameService {
     @Transactional
     @Override
     public Game updateById(Long id, Game juego) {
-        // Cumple la regla: "Actualizar modalidad o reglas generales"
         return this.gameRepository.findById(id).map(element -> {
             element.setModalidad(juego.getModalidad());
             element.setJugadoresPorEquipo(juego.getJugadoresPorEquipo());
             element.setEstado(juego.getEstado());
-            // No permitimos actualizar el nombre porque la regla dice "Nombre de juego único"
             return this.gameRepository.save(element);
         }).orElseThrow(
                 () -> new GameException("Juego no encontrado")

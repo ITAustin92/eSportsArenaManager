@@ -18,11 +18,9 @@ import java.time.LocalDateTime;
 @ToString
 public class Audit {
 
-    // Guarda el momento exacto en el que se creó el registro del premio o presupuesto
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Guarda el momento en el que se actualiza (ej: cuando el premio pasa de "PENDIENTE" a "ENTREGADO")
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

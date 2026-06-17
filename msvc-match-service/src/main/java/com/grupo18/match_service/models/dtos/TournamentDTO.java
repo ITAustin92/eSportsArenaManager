@@ -13,6 +13,6 @@ public class TournamentDTO {
 
     private Long tournamentId;
     private String name;
-    private String state; // Validación: ¿El torneo está "IN_PROGRESS" o activo?
+    private String state;
 
 }

@@ -18,11 +18,9 @@ import java.time.LocalDateTime;
 @ToString
 public class Audit {
 
-    // Guarda el momento exacto en el que el sistema crea la notificación para ser enviada
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Guarda el momento en el que la notificación cambia de estado (ej: de PENDING a SENT o FAILED)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

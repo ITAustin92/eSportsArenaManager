@@ -7,9 +7,9 @@ import com.grupo18.game_service.models.Game;
 import java.util.List;
 
 public interface GameService {
-    List<Game> findByEstado(String estado); // Para listar los activos
+    List<Game> findByEstado(String estado);
     Game findById(Long id);
     Game save(Game juego);
-    void deleteById(Long id); // Usaremos este método para la "desactivación"
+    void deleteById(Long id);
     Game updateById(Long id, Game juego);
 }

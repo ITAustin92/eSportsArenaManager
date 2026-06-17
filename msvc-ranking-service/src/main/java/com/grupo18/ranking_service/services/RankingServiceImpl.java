@@ -21,21 +21,18 @@ public class RankingServiceImpl implements RankingService {
     @Autowired
     private TournamentClient tournamentClient;
 
-    // Reglas de negocio: Constantes de puntaje base
     private static final int POINTS_PER_WIN = 3;
     private static final int POINTS_PER_LOSS = 0;
 
     @Transactional
     @Override
     public void processMatchResult(MatchResultUpdateDTO updateDTO) {
-        // 1. Validar estado del torneo (Puerto 8003)
-        // Regla: No se actualizan rankings de un torneo que no existe o ya finalizó
+
         TournamentDTO tournament = tournamentClient.getTournamentById(updateDTO.getTournamentId());
         if (tournament == null || "FINISHED".equalsIgnoreCase(tournament.getState())) {
             throw new RuntimeException("No se pueden sumar puntos a un torneo finalizado o inexistente");
         }
 
-        // 2. Procesar al GANADOR
         Ranking winnerRanking = rankingRepository.findByTournamentIdAndTeamId(
                 updateDTO.getTournamentId(), updateDTO.getWinnerTeamId()
         ).orElse(createNewRanking(updateDTO.getTournamentId(), updateDTO.getWinnerTeamId()));
@@ -45,7 +42,7 @@ public class RankingServiceImpl implements RankingService {
         winnerRanking.setMatchesPlayed(winnerRanking.getMatchesPlayed() + 1); // Suma 1 partido jugado
         rankingRepository.save(winnerRanking);
 
-        // 3. Procesar al PERDEDOR
+
         Ranking loserRanking = rankingRepository.findByTournamentIdAndTeamId(
                 updateDTO.getTournamentId(), updateDTO.getLoserTeamId()
         ).orElse(createNewRanking(updateDTO.getTournamentId(), updateDTO.getLoserTeamId()));
@@ -59,11 +56,9 @@ public class RankingServiceImpl implements RankingService {
     @Transactional(readOnly = true)
     @Override
     public List<Ranking> getTournamentLeaderboard(Long tournamentId) {
-        // Delega la responsabilidad de ordenar al Repositorio (Base de Datos)
         return rankingRepository.findByTournamentIdOrderByPointsDesc(tournamentId);
     }
 
-    // Método auxiliar para no repetir código: Inicializa a un equipo en cero
     private Ranking createNewRanking(Long tournamentId, Long teamId) {
         Ranking newRanking = new Ranking();
         newRanking.setTournamentId(tournamentId);

@@ -24,7 +24,6 @@ public class Match {
     @Column(name = "match_id")
     private Long matchId;
 
-    // Relación con el torneo y los equipos mediante IDs
     @NotNull(message = "The tournament ID cannot be null")
     @Column(name = "tournament_id", nullable = false)
     private Long tournamentId;
@@ -52,7 +51,7 @@ public class Match {
 
     @NotBlank(message = "The match status cannot be empty")
     @Column(nullable = false)
-    private String status; // Ejemplo: "SCHEDULED", "IN_PROGRESS", "FINISHED"
+    private String status;
 
     @Embedded
     private Audit audit = new Audit();

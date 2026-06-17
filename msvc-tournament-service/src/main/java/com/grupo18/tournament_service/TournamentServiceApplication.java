@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients; // Asegúrate de importar esto
 
 @SpringBootApplication
-@EnableFeignClients // ¡Esta es la llave mágica que soluciona tu error!
+@EnableFeignClients
 public class TournamentServiceApplication {
 
 	public static void main(String[] args) {

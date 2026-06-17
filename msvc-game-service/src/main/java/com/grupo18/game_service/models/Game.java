@@ -23,16 +23,16 @@ public class Game {
     private Long juegoId;
 
     @NotBlank(message = "El campo nombre no puede ser vacio")
-    @Column(nullable = false, unique = true) // Regla de negocio: Nombre único
+    @Column(nullable = false, unique = true)
     private String nombre;
 
     @NotBlank(message = "El campo genero no puede ser vacio")
     @Column(nullable = false)
-    private String genero; // Ejemplo: "Shooter", "MOBA", "Deportes"
+    private String genero;
 
     @NotBlank(message = "El campo modalidad no puede ser vacio")
     @Column(nullable = false)
-    private String modalidad; // Ejemplo: "5v5", "1v1", "Battle Royale"
+    private String modalidad;
 
     @NotNull(message = "El campo jugadores por equipo no puede ser nulo")
     @Positive(message = "La cantidad de jugadores por equipo debe ser un numero positivo") // Regla de negocio: Positivo
@@ -41,9 +41,8 @@ public class Game {
 
     @NotBlank(message = "El campo estado no puede ser vacio")
     @Column(nullable = false)
-    private String estado; // Ejemplo: "ACTIVO", "INACTIVO"
+    private String estado;
 
-    // La misma estructura de auditoría incrustada del profe
     @Embedded
     private Audit audit = new Audit();
 }

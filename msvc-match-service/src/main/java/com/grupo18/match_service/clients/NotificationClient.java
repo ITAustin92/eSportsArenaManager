@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "notification-service", url = "http://localhost:8010/api/v1/notifications")
 public interface NotificationClient {
 
-    /**
-
-     Envía la orden a la central de mensajería para que dispare un correo o alerta.*/@PostMapping("/send")
+    @PostMapping("/send")
     void sendNotification(@RequestBody NotificationRequestDTO request);
 }

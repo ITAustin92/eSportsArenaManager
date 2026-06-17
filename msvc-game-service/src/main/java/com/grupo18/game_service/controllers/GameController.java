@@ -19,8 +19,6 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-    // Cumple el requisito: "Listar juegos activos"
-    // Al llamarlo desde Postman sin enviarle estado, por defecto traerÃ¡ los "ACTIVO"
     @GetMapping
     public ResponseEntity<List<Game>> findActivos() {
         return ResponseEntity
@@ -28,7 +26,7 @@ public class GameController {
                 .body(gameService.findByEstado("ACTIVO"));
     }
 
-    // Endpoint adicional por si deseas buscar por otros estados (ej: INACTIVO)
+
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<Game>> findByEstado(@PathVariable String estado) {
         return ResponseEntity
@@ -36,7 +34,7 @@ public class GameController {
                 .body(gameService.findByEstado(estado));
     }
 
-    // Cumple el requisito: "Buscar juego por ID"
+
     @GetMapping("/{id}")
     public ResponseEntity<Game> findById(@PathVariable Long id) {
         return ResponseEntity
@@ -44,7 +42,7 @@ public class GameController {
                 .body(gameService.findById(id));
     }
 
-    // Cumple el requisito: "Crear juego"
+
     @PostMapping
     public ResponseEntity<Game> save(@Valid @RequestBody Game juego) {
         return ResponseEntity
@@ -52,7 +50,7 @@ public class GameController {
                 .body(gameService.save(juego));
     }
 
-    // Cumple el requisito: "Actualizar modalidad o reglas generales"
+
     @PutMapping("/{id}")
     public ResponseEntity<Game> update(@PathVariable Long id, @Valid @RequestBody Game juego) {
         return ResponseEntity
@@ -60,7 +58,6 @@ public class GameController {
                 .body(gameService.updateById(id, juego));
     }
 
-    // Cumple el requisito: "Desactivar juego"
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         gameService.deleteById(id);
