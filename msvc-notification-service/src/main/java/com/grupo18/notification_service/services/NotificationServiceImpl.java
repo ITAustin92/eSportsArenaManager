@@ -8,11 +8,13 @@ import com.grupo18.notification_service.repositories.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import static reactor.netty.http.HttpConnectionLiveness.log;
 import java.util.List;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
+
+
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -23,6 +25,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     @Override
     public Notification processNotification(NotificationRequestDTO request) {
+        log.info("Procesando nueva notificación. Tipo: '{}', Asunto: '{}'",
+                request.getType(), request.getSubject());
 
         Notification notification = new Notification();
         notification.setUserId(request.getUserId());
@@ -34,28 +38,31 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setStatus("PENDING");
 
         notification = notificationRepository.save(notification);
+        log.info("Notificación ID {} guardada en BD con estado PENDING", notification.getNotificationId());
 
         try {
             String emailDestino = "alertas_equipo@torneo.com";
-
             if (notification.getUserId() != null) {
+                log.info("Consultando correo del usuario ID {} al user-service", notification.getUserId());
                 UserDTO user = userClient.getUserById(notification.getUserId());
                 if (user != null && user.getEmail() != null) {
                     emailDestino = user.getEmail();
+                    log.info("Correo obtenido: '{}'", emailDestino);
                 }
             }
 
-            System.out.println("\n==================================================");
-            System.out.println("🔔 [NOTIFICATION-SERVICE] PROCESANDO ALERTA...");
-            System.out.println("Destino: " + emailDestino);
-            System.out.println("Asunto: " + notification.getSubject());
-            System.out.println("Mensaje: " + notification.getMessage());
-            System.out.println("==================================================\n");
+            log.info("=== SIMULACIÓN DE ENVÍO ===");
+            log.info("[NOTIFICATION-SERVICE] Destino: {}", emailDestino);
+            log.info("[NOTIFICATION-SERVICE] Asunto: {}", notification.getSubject());
+            log.info("[NOTIFICATION-SERVICE] Mensaje: {}", notification.getMessage());
+            log.info("===========================");
 
             notification.setStatus("SENT");
+            log.info("Notificación ID {} enviada exitosamente", notification.getNotificationId());
 
         } catch (Exception e) {
-            System.out.println("ERROR: Falló el envío de la notificación - " + e.getMessage());
+            log.error("Fallo en el envío de notificación ID {}. Causa: {}",
+                    notification.getNotificationId(), e.getMessage());
             notification.setStatus("FAILED");
         }
 
@@ -65,31 +72,46 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     @Override
     public Notification findById(Long id) {
-        return notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notificación no encontrada"));
+        log.info("Buscando notificación con ID: {}", id);
+        return notificationRepository.findById(id).orElseThrow(() -> {
+            log.warn("Notificación con ID {} no encontrada", id);
+            return new RuntimeException("Notificación no encontrada");
+        });
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Notification> findAll() {
-        return notificationRepository.findAll();
+        log.info("Obteniendo listado completo de notificaciones");
+        List<Notification> lista = notificationRepository.findAll();
+        log.info("Se encontraron {} notificación(es) en total", lista.size());
+        return lista;
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Notification> findByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId);
+        log.info("Buscando notificaciones del usuario ID: {}", userId);
+        List<Notification> lista = notificationRepository.findByUserId(userId);
+        log.info("Se encontraron {} notificación(es) para usuario ID: {}", lista.size(), userId);
+        return lista;
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Notification> findByTeamId(Long teamId) {
-        return notificationRepository.findByTeamId(teamId);
+        log.info("Buscando notificaciones del equipo ID: {}", teamId);
+        List<Notification> lista = notificationRepository.findByTeamId(teamId);
+        log.info("Se encontraron {} notificación(es) para equipo ID: {}", lista.size(), teamId);
+        return lista;
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Notification> findByTournamentId(Long tournamentId) {
-        return notificationRepository.findByTournamentId(tournamentId);
+        log.info("Buscando notificaciones del torneo ID: {}", tournamentId);
+        List<Notification> lista = notificationRepository.findByTournamentId(tournamentId);
+        log.info("Se encontraron {} notificación(es) para torneo ID: {}", lista.size(), tournamentId);
+        return lista;
     }
 }

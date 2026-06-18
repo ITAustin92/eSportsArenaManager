@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 @Service
 public class GameServiceImpl implements GameService {
 
@@ -18,47 +20,63 @@ public class GameServiceImpl implements GameService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Game> findByEstado(String estado) {
 
-        return this.gameRepository.findByEstado(estado);
+    public List<Game> findByEstado(String estado) {
+        log.info("Buscando juegos con estado: {}", estado);
+        List<Game> juegos = this.gameRepository.findByEstado(estado);
+        log.info("Se encontraron {} juego(s) con estado: {}", juegos.size(), estado);
+        return juegos;
     }
+
 
     @Transactional(readOnly = true)
     @Override
     public Game findById(Long id) {
-        return this.gameRepository.findById(id).orElseThrow(
-                () -> new GameException("Juego no encontrado")
-        );
+        log.info("Buscando juego con ID: {}", id);
+        return this.gameRepository.findById(id).orElseThrow(() ->{
+            log.info("Jego con ID {} no encontrado", id);
+            return new GameException("Juego no encontrado");
+        });
     }
 
     @Transactional
     @Override
     public Game save(Game juego) {
+        log.info("Intentando registrar nuevo juego con nombre: '{}'", juego.getNombre());
         if(this.gameRepository.findByNombre(juego.getNombre()).isPresent()){
+            log.warn("Intenta crear juego duplicado. Nombre:'{}'", juego.getNombre());
             throw new GameException("El nombre del juego ya existe");
         }
-        return this.gameRepository.save(juego);
+        Game saved = this.gameRepository.save(juego);
+        log.info("Juego registrado exitosament. ID: {}, Nombre'{}'", saved.getJuegoId(), saved.getNombre());
+        return saved;
+
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
+        log.info("Intenta desctivar juego con UD:{}", id);
         Game juego = this.findById(id);
         juego.setEstado("INACTIVO");
 
-        this.gameRepository.save(juego);
+        log.info("Juego con ID: {} desactivado exitosamente", id);
     }
 
     @Transactional
     @Override
     public Game updateById(Long id, Game juego) {
+        log.info("Intentando actualizar juego con ID: {}", id);
         return this.gameRepository.findById(id).map(element -> {
             element.setModalidad(juego.getModalidad());
             element.setJugadoresPorEquipo(juego.getJugadoresPorEquipo());
             element.setEstado(juego.getEstado());
+            Game updated = this.gameRepository.save(element);
+            log.info("Juego ID {} actualizado. Modalidad: '{}', Estado: '{}'", updated.getJuegoId(), updated.getModalidad(),updated.getEstado());
             return this.gameRepository.save(element);
-        }).orElseThrow(
-                () -> new GameException("Juego no encontrado")
-        );
+        }).orElseThrow(() -> {
+            log.warn("No se encontró juego con ID {} para actualizar", id);
+          return new GameException("Juego no encontrado");
+        });
     }
 }

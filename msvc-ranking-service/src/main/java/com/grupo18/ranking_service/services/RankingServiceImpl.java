@@ -8,12 +8,17 @@ import com.grupo18.ranking_service.repositories.RankingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import static reactor.netty.http.HttpConnectionLiveness.log;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class RankingServiceImpl implements RankingService {
+
+
+
+    private static final int POINTS_PER_WIN = 3;
+    private static final int POINTS_PER_LOSS = 0;
 
     @Autowired
     private RankingRepository rankingRepository;
@@ -21,42 +26,62 @@ public class RankingServiceImpl implements RankingService {
     @Autowired
     private TournamentClient tournamentClient;
 
-    private static final int POINTS_PER_WIN = 3;
-    private static final int POINTS_PER_LOSS = 0;
-
     @Transactional
     @Override
     public void processMatchResult(MatchResultUpdateDTO updateDTO) {
+        log.info("Procesando resultado de partido. Torneo ID: {}, Ganador ID: {}, Perdedor ID: {}",
+                updateDTO.getTournamentId(), updateDTO.getWinnerTeamId(), updateDTO.getLoserTeamId());
 
         TournamentDTO tournament = tournamentClient.getTournamentById(updateDTO.getTournamentId());
         if (tournament == null || "FINISHED".equalsIgnoreCase(tournament.getState())) {
+            log.warn("Torneo ID {} no permite actualización de ranking. Estado: {}",
+                    updateDTO.getTournamentId(), tournament != null ? tournament.getState() : "null");
             throw new RuntimeException("No se pueden sumar puntos a un torneo finalizado o inexistente");
         }
 
-        Ranking winnerRanking = rankingRepository.findByTournamentIdAndTeamId(
-                updateDTO.getTournamentId(), updateDTO.getWinnerTeamId()
-        ).orElse(createNewRanking(updateDTO.getTournamentId(), updateDTO.getWinnerTeamId()));
+        Ranking winnerRanking = rankingRepository
+                .findByTournamentIdAndTeamId(updateDTO.getTournamentId(), updateDTO.getWinnerTeamId())
+                .orElseGet(() -> {
+                    log.info("Creando entrada de ranking para equipo ganador ID: {}", updateDTO.getWinnerTeamId());
+                    return createNewRanking(updateDTO.getTournamentId(), updateDTO.getWinnerTeamId());
+                });
 
-        winnerRanking.setPoints(winnerRanking.getPoints() + POINTS_PER_WIN); // Suma 3 puntos
-        winnerRanking.setWins(winnerRanking.getWins() + 1);                  // Suma 1 victoria
-        winnerRanking.setMatchesPlayed(winnerRanking.getMatchesPlayed() + 1); // Suma 1 partido jugado
+        winnerRanking.setPoints(winnerRanking.getPoints() + POINTS_PER_WIN);
+        winnerRanking.setWins(winnerRanking.getWins() + 1);
+        winnerRanking.setMatchesPlayed(winnerRanking.getMatchesPlayed() + 1);
         rankingRepository.save(winnerRanking);
+        log.info("Ranking actualizado para equipo ganador ID: {}. Puntos totales: {}, Victorias: {}",
+                updateDTO.getWinnerTeamId(), winnerRanking.getPoints(), winnerRanking.getWins());
 
+        Ranking loserRanking = rankingRepository
+                .findByTournamentIdAndTeamId(updateDTO.getTournamentId(), updateDTO.getLoserTeamId())
+                .orElseGet(() -> {
+                    log.info("Creando entrada de ranking para equipo perdedor ID: {}", updateDTO.getLoserTeamId());
+                    return createNewRanking(updateDTO.getTournamentId(), updateDTO.getLoserTeamId());
+                });
 
-        Ranking loserRanking = rankingRepository.findByTournamentIdAndTeamId(
-                updateDTO.getTournamentId(), updateDTO.getLoserTeamId()
-        ).orElse(createNewRanking(updateDTO.getTournamentId(), updateDTO.getLoserTeamId()));
-
-        loserRanking.setPoints(loserRanking.getPoints() + POINTS_PER_LOSS); // Suma 0 puntos
-        loserRanking.setLosses(loserRanking.getLosses() + 1);               // Suma 1 derrota
-        loserRanking.setMatchesPlayed(loserRanking.getMatchesPlayed() + 1); // Suma 1 partido jugado
+        loserRanking.setPoints(loserRanking.getPoints() + POINTS_PER_LOSS);
+        loserRanking.setLosses(loserRanking.getLosses() + 1);
+        loserRanking.setMatchesPlayed(loserRanking.getMatchesPlayed() + 1);
         rankingRepository.save(loserRanking);
+        log.info("Ranking actualizado para equipo perdedor ID: {}. Puntos totales: {}, Derrotas: {}",
+                updateDTO.getLoserTeamId(), loserRanking.getPoints(), loserRanking.getLosses());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Ranking> getTournamentLeaderboard(Long tournamentId) {
-        return rankingRepository.findByTournamentIdOrderByPointsDesc(tournamentId);
+        log.info("Obteniendo tabla de posiciones del torneo ID: {}", tournamentId);
+        List<Ranking> tabla = rankingRepository.findByTournamentIdOrderByPointsDesc(tournamentId);
+        log.info("Tabla de posiciones: {} equipo(s) en torneo ID: {}", tabla.size(), tournamentId);
+        return tabla;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Ranking> findByTournamentAndTeam(Long tournamentId, Long teamId) {
+        log.info("Buscando ranking del equipo ID: {} en torneo ID: {}", teamId, tournamentId);
+        return rankingRepository.findByTournamentIdAndTeamId(tournamentId, teamId);
     }
 
     private Ranking createNewRanking(Long tournamentId, Long teamId) {
@@ -69,11 +94,4 @@ public class RankingServiceImpl implements RankingService {
         newRanking.setMatchesPlayed(0);
         return newRanking;
     }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Ranking> findByTournamentAndTeam(Long tournamentId, Long teamId) {
-        return rankingRepository.findByTournamentIdAndTeamId(tournamentId, teamId);
-    }
-
 }
