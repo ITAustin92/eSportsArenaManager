@@ -3,6 +3,8 @@ package com.grupo18.result_service.controllers;
 import com.grupo18.result_service.models.Result;
 import com.grupo18.result_service.services.ResultService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Results V1", description = "Resultados de partidas")
 @RestController
 @RequestMapping("/api/v1/results")
 public class ResultController {
@@ -17,6 +20,7 @@ public class ResultController {
     @Autowired
     private ResultService resultService;
 
+    @Operation(summary = "Crear recurso")
     @PostMapping
     public ResponseEntity<Result> save(@Valid @RequestBody Result result) {
         return ResponseEntity

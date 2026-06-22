@@ -5,193 +5,76 @@ import com.grupo18.user_service.models.User;
 import com.grupo18.user_service.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.hateoas.EntityModel;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("/api/v2/users")
 @Validated
-@Tag(name = "Usuarios V2", description = "Metodos CRUD HATEOAS para la gestión de usuario")
-public class UserControllerV2{
+@Tag(name = "Users V2", description = "CRUD de usuarios con respuestas HATEOAS")
+public class UserControllerV2 {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserModelAssembler userModelAssembler;
+    @Autowired private UserService userService;
+    @Autowired private UserModelAssembler userModelAssembler;
 
     @GetMapping
-    @Operation(
-            summary = "Listado de todos los usuarios",
-            description = "Se devuelve una lista con todos los usuarios en la tabla usuarios de la DB"
-    )
-    @ApiResponse(responseCode = "200", description = "Operacion Exitosa")
+    @Operation(summary = "Listar todos los usuarios")
+    @ApiResponse(responseCode = "200", description = "Operación exitosa")
     public ResponseEntity<CollectionModel<EntityModel<User>>> findAll() {
-        List<EntityModel<User>> entityModels = userService.findAll()
-                .stream()
-                .map(userModelAssembler::toModel)
-                .toList();
-
-        CollectionModel<EntityModel<User>> collectionModel = CollectionModel.of(
-                entityModels,
-                linkTo(methodOn(UserControllerV2.class).findAll()).withSelfRel()
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(collectionModel);
+        List<EntityModel<User>> models = userService.findAll().stream().map(userModelAssembler::toModel).toList();
+        return ResponseEntity.ok(CollectionModel.of(models,
+                linkTo(methodOn(UserControllerV2.class).findAll()).withSelfRel()));
     }
 
     @GetMapping("/{id}")
-    @Operation(
-            summary = "Busqueda de un usuario por id",
-            description = "Se devuelve un usuario, en caso contrario se devuelve una excepcion"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario encontrado",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "404", description = "Paciente no se encuentra en la BD")
-    })
-    public ResponseEntity<EntityModel<User>> findById(@Parameter(description = "ID del Usuario a buscar", required = true, example = "1") @PathVariable Long id) {
-        EntityModel<User> entityModel = userModelAssembler.toModel(userService.findById(id));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(entityModel);
-    }
-
-    @GetMapping("/nickname/{nickname}")
-    @Operation(
-            summary = "Busqueda de un usuario por nickname",
-            description = "Se devuelve un usuario, en caso contrario se devuelve una excepcion"
-    )
+    @Operation(summary = "Buscar usuario por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no se encuentra en la BD")
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<EntityModel<User>> findByNickname(@PathVariable String nickname) {
-        EntityModel<User> entityModel = userModelAssembler.toModel(userService.findByNickname(nickname));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(entityModel);
-    }
-
-    @GetMapping("/correo/{correo}")
-    @Operation(
-            summary = "Busqueda de un usuario por correo",
-            description = "Se devuelve un usuario, en caso contrario se devuelve una excepcion"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no se encuentra en la BD")
-    })
-    public ResponseEntity<EntityModel<User>> findByCorreo(@Parameter(description = "correo del Usuario a buscar", required = true, example = "usuario@correo.cl")@PathVariable String correo) {
-        EntityModel<User> entityModel = userModelAssembler.toModel(userService.findByCorreo(correo));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(entityModel);
+    public ResponseEntity<EntityModel<User>> findById(
+            @Parameter(description = "ID del usuario", required = true, example = "1") @PathVariable Long id) {
+        return ResponseEntity.ok(userModelAssembler.toModel(userService.findById(id)));
     }
 
     @PostMapping
-    @Operation(summary = "Guardado del usuario", description = "Método que guarda al usuario en la tabla")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Usuario a crear", required = true,
-            content = @Content(schema = @Schema(implementation = User.class))
-    )
-    @ApiResponse(responseCode = "201", description = "Paciente creado")
+    @Operation(summary = "Crear usuario")
     public ResponseEntity<EntityModel<User>> save(@Valid @RequestBody User usuario) {
-        EntityModel<User> entityModel = userModelAssembler.toModel(userService.save(usuario));
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(entityModel);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userModelAssembler.toModel(userService.save(usuario)));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizacion de usuario", description = "Se actualizan los datos de un usuario existente")
+    @Operation(summary = "Actualizar usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no se encuentra en la BD")
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<EntityModel<User>> update(@Parameter(description = "ID del Usuario a actualizar", required = true, example = "1")@PathVariable Long id, @Valid @RequestBody User usuario) {
-        EntityModel<User> entityModel = userModelAssembler.toModel(userService.updateById(id, usuario));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(entityModel);
+    public ResponseEntity<EntityModel<User>> update(
+            @Parameter(description = "ID del usuario", required = true, example = "1") @PathVariable Long id,
+            @Valid @RequestBody User usuario) {
+        return ResponseEntity.ok(userModelAssembler.toModel(userService.updateById(id, usuario)));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Borrado del usuario", description = "Se elimina usuario de la base de datos")
+    @Operation(summary = "Eliminar usuario")
     @ApiResponse(responseCode = "204", description = "Usuario eliminado")
-    public ResponseEntity<Void> delete(@Parameter(description = "ID del Usuario a eliminar", required = true, example = "1")@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "ID del usuario", required = true, example = "1") @PathVariable Long id) {
         userService.deleteById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    @GetMapping("/rol/{rol}")
-    @Operation(
-            summary = "Busqueda de un usuario por rol",
-            description = "Se devuelve un usuario, en caso contrario se devuelve una excepcion"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no se encuentra en la BD")
-    })
-    public ResponseEntity<CollectionModel<EntityModel<User>>> findByRol(@Parameter(description = "Rol del Usuario a buscar", required = true, example = "jugador")@PathVariable String rol) {
-        List<EntityModel<User>> entityModels = userService.findByRol(rol)
-                .stream()
-                .map(userModelAssembler::toModel)
-                .toList();
-
-        CollectionModel<EntityModel<User>> collectionModel = CollectionModel.of(
-                entityModels,
-                linkTo(methodOn(UserControllerV2.class).findByRol(rol)).withSelfRel()
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(collectionModel);
-    }
-
-    @GetMapping("/estado/{estado}")
-    @Operation(
-            summary = "Busqueda de un usuario por estado",
-            description = "Se devuelve un usuario, en caso contrario se devuelve una excepcion"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no se encuentra en la BD")
-    })
-    public ResponseEntity<CollectionModel<EntityModel<User>>> findByEstado(@Parameter(description = "estado del Usuario a buscar", required = true, example = "ACTIVO")@PathVariable String estado) {
-        List<EntityModel<User>> entityModels = userService.findByEstado(estado)
-                .stream()
-                .map(userModelAssembler::toModel)
-                .toList();
-
-        CollectionModel<EntityModel<User>> collectionModel = CollectionModel.of(
-                entityModels,
-                linkTo(methodOn(UserControllerV2.class).findByEstado(estado)).withSelfRel()
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(collectionModel);
-    }
-
 }
-

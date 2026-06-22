@@ -3,6 +3,8 @@ package com.grupo18.sanction_service.controllers;
 import com.grupo18.sanction_service.models.Sanction;
 import com.grupo18.sanction_service.services.SanctionService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Sanctions V1", description = "Sanciones a jugadores y equipos")
 @RestController
 @RequestMapping("/api/v1/sanctions")
 public class SanctionController {
@@ -18,6 +21,7 @@ public class SanctionController {
     private SanctionService sanctionService;
 
 
+    @Operation(summary = "Crear recurso")
     @PostMapping
     public ResponseEntity<Sanction> save(@Valid @RequestBody Sanction sanction) {
         Sanction savedSanction = sanctionService.save(sanction);
@@ -25,6 +29,7 @@ public class SanctionController {
     }
 
 
+    @Operation(summary = "Operación GET")
     @GetMapping
     public ResponseEntity<List<Sanction>> findAll() {
         return ResponseEntity.ok(sanctionService.findAll());

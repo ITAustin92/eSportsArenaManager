@@ -1,0 +1,201 @@
+spring:
+  application:
+    name: msvc-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          # Cada ruta: si la URL entra por el patrón 'predicates', el gateway la reenvía
+          # a 'uri'. lb:// significa "busca este nombre en Eureka y balancea la carga".
+          routes:
+            - id: msvc-auth-service
+              uri: lb://msvc-auth-service
+              predicates:
+                - Path=/api/v1/auth/**
+
+            - id: msvc-user-service
+              uri: lb://msvc-user-service
+              predicates:
+                - Path=/api/v1/users/**,/api/v2/users/**
+
+            - id: msvc-game-service
+              uri: lb://msvc-game-service
+              predicates:
+                - Path=/api/v1/games/**,/api/v2/games/**
+
+            - id: msvc-team-service
+              uri: lb://msvc-team-service
+              predicates:
+                - Path=/api/v1/teams/**,/api/v2/teams/**
+
+            - id: msvc-tournament-service
+              uri: lb://msvc-tournament-service
+              predicates:
+                - Path=/api/v1/tournaments/**,/api/v2/tournaments/**
+
+            - id: msvc-registration-service
+              uri: lb://msvc-registration-service
+              predicates:
+                - Path=/api/v1/registrations/**,/api/v2/registrations/**
+
+            - id: msvc-sanction-service
+              uri: lb://msvc-sanction-service
+              predicates:
+                - Path=/api/v1/sanctions/**,/api/v2/sanctions/**
+
+            - id: msvc-match-service
+              uri: lb://msvc-match-service
+              predicates:
+                - Path=/api/v1/matches/**,/api/v2/matches/**
+
+            - id: msvc-result-service
+              uri: lb://msvc-result-service
+              predicates:
+                - Path=/api/v1/results/**,/api/v2/results/**
+
+            - id: msvc-ranking-service
+              uri: lb://msvc-ranking-service
+              predicates:
+                - Path=/api/v1/rankings/**,/api/v2/rankings/**
+
+            - id: msvc-prize-service
+              uri: lb://msvc-prize-service
+              predicates:
+                - Path=/api/v1/prizes/**,/api/v2/prizes/**
+
+            - id: msvc-notification-service
+              uri: lb://msvc-notification-service
+              predicates:
+                - Path=/api/v1/notifications/**,/api/v2/notifications/**
+
+            # Rutas para el OpenAPI (JSON) de cada servicio.
+            # El Swagger UI del gateway las consume via /api-docs/<svc>.
+            # RewritePath lo traduce al /v3/api-docs real del servicio.
+            - id: auth-api-docs
+              uri: lb://msvc-auth-service
+              predicates:
+                - Path=/api-docs/auth
+              filters:
+                - RewritePath=/api-docs/auth, /v3/api-docs
+
+            - id: users-api-docs
+              uri: lb://msvc-user-service
+              predicates:
+                - Path=/api-docs/users
+              filters:
+                - RewritePath=/api-docs/users, /v3/api-docs
+
+            - id: games-api-docs
+              uri: lb://msvc-game-service
+              predicates:
+                - Path=/api-docs/games
+              filters:
+                - RewritePath=/api-docs/games, /v3/api-docs
+
+            - id: teams-api-docs
+              uri: lb://msvc-team-service
+              predicates:
+                - Path=/api-docs/teams
+              filters:
+                - RewritePath=/api-docs/teams, /v3/api-docs
+
+            - id: tournaments-api-docs
+              uri: lb://msvc-tournament-service
+              predicates:
+                - Path=/api-docs/tournaments
+              filters:
+                - RewritePath=/api-docs/tournaments, /v3/api-docs
+
+            - id: registrations-api-docs
+              uri: lb://msvc-registration-service
+              predicates:
+                - Path=/api-docs/registrations
+              filters:
+                - RewritePath=/api-docs/registrations, /v3/api-docs
+
+            - id: sanctions-api-docs
+              uri: lb://msvc-sanction-service
+              predicates:
+                - Path=/api-docs/sanctions
+              filters:
+                - RewritePath=/api-docs/sanctions, /v3/api-docs
+
+            - id: matches-api-docs
+              uri: lb://msvc-match-service
+              predicates:
+                - Path=/api-docs/matches
+              filters:
+                - RewritePath=/api-docs/matches, /v3/api-docs
+
+            - id: results-api-docs
+              uri: lb://msvc-result-service
+              predicates:
+                - Path=/api-docs/results
+              filters:
+                - RewritePath=/api-docs/results, /v3/api-docs
+
+            - id: rankings-api-docs
+              uri: lb://msvc-ranking-service
+              predicates:
+                - Path=/api-docs/rankings
+              filters:
+                - RewritePath=/api-docs/rankings, /v3/api-docs
+
+            - id: prizes-api-docs
+              uri: lb://msvc-prize-service
+              predicates:
+                - Path=/api-docs/prizes
+              filters:
+                - RewritePath=/api-docs/prizes, /v3/api-docs
+
+            - id: notifications-api-docs
+              uri: lb://msvc-notification-service
+              predicates:
+                - Path=/api-docs/notifications
+              filters:
+                - RewritePath=/api-docs/notifications, /v3/api-docs
+
+# Punto de entrada único: todo el tráfico entra por aquí.
+server:
+  port: 8080
+
+# El gateway también es cliente Eureka para poder resolver los lb://
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+# Swagger UI agregado: una sola página con un desplegable para elegir el microservicio.
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs/swagger-ui.html
+    urls:
+      - name: auth
+        url: /api-docs/auth
+      - name: users
+        url: /api-docs/users
+      - name: games
+        url: /api-docs/games
+      - name: teams
+        url: /api-docs/teams
+      - name: tournaments
+        url: /api-docs/tournaments
+      - name: registrations
+        url: /api-docs/registrations
+      - name: sanctions
+        url: /api-docs/sanctions
+      - name: matches
+        url: /api-docs/matches
+      - name: results
+        url: /api-docs/results
+      - name: rankings
+        url: /api-docs/rankings
+      - name: prizes
+        url: /api-docs/prizes
+      - name: notifications
+        url: /api-docs/notifications
+
+# CLAVE SECRETA JWT: la MISMA que en msvc-auth-service y en todos los microservicios.
+jwt:
+  secret: clave-secreta-super-segura-para-jwt-esports-arena-manager-grupo18-2026

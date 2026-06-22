@@ -3,6 +3,8 @@ package com.grupo18.prize_service.controllers;
 import com.grupo18.prize_service.models.Prize;
 import com.grupo18.prize_service.services.PrizeService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Prizes V1", description = "Premios de torneos")
 @RestController
 @RequestMapping("/api/v1/prizes")
 public class PrizeController {
@@ -17,12 +20,14 @@ public class PrizeController {
     @Autowired
     private PrizeService prizeService;
 
+    @Operation(summary = "Crear recurso")
     @PostMapping
     public ResponseEntity<Prize> save(@Valid @RequestBody Prize prize) {
         Prize savedPrize = prizeService.save(prize);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPrize);
     }
 
+    @Operation(summary = "Operación GET")
     @GetMapping
     public ResponseEntity<List<Prize>> findAll() {
         return ResponseEntity.ok(prizeService.findAll());

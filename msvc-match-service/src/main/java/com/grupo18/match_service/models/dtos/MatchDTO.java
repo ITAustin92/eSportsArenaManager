@@ -21,4 +21,5 @@ public class MatchDTO {
     private Integer awayScore;
     private LocalDateTime matchDate;
     private String status;
+
 }

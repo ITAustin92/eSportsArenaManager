@@ -18,6 +18,7 @@ VALUES (2, 2, 3, NULL, NULL, '2026-08-15 18:00:00', 'SCHEDULED');
 INSERT INTO matches (tournament_id, home_team_id, away_team_id, home_score, away_score, match_date, status)
 VALUES (1, 1, 3, 1, 1, '2026-05-24 20:00:00', 'IN_PROGRESS');
 
-
+-- 5. La Gran Final de nuestro calendario (Partido 5)
+-- Los Tigres ganan por la mínima.
 INSERT INTO matches (tournament_id, home_team_id, away_team_id, home_score, away_score, match_date, status)
 VALUES (1, 1, 2, 1, 0, '2026-06-20 20:00:00', 'FINISHED');

@@ -3,6 +3,8 @@ package com.grupo18.registration_service.controllers;
 import com.grupo18.registration_service.models.Registration;
 import com.grupo18.registration_service.services.RegistrationService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Registrations V1", description = "Inscripciones a torneos")
 @RestController
 @RequestMapping("/api/v1/registrations")
 public class RegistrationController {
@@ -18,12 +21,14 @@ public class RegistrationController {
     private RegistrationService registrationService;
 
 
+    @Operation(summary = "Operación GET")
     @GetMapping
     public ResponseEntity<List<Registration>> findAll() {
         return ResponseEntity.ok(registrationService.findAll());
     }
 
 
+    @Operation(summary = "Crear recurso")
     @PostMapping
     public ResponseEntity<Registration> save(@Valid @RequestBody Registration registration) {
         return ResponseEntity

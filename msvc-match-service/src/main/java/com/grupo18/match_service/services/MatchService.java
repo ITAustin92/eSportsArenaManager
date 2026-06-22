@@ -4,6 +4,8 @@ import com.grupo18.match_service.models.Match;
 import java.util.List;
 
 public interface MatchService {
+    List<Match> findAll();
+
     Match save(Match match);
 
     Match findById(Long id);

@@ -3,6 +3,8 @@ package com.grupo18.match_service.controllers;
 import com.grupo18.match_service.models.Match;
 import com.grupo18.match_service.services.MatchService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Matches V1", description = "Partidas dentro de torneos")
 @RestController
 @RequestMapping("/api/v1/matches")
 public class MatchController {
@@ -26,6 +29,7 @@ public class MatchController {
 
     // Crear un nuevo partido
     // Se delega al Service toda la validación de inscripciones y torneo
+    @Operation(summary = "Crear recurso")
     @PostMapping
     public ResponseEntity<Match> save(@Valid @RequestBody Match match) {
         return ResponseEntity
