@@ -308,10 +308,10 @@ Contraseña: sa
 ## Orden de inicio recomendado
 
 1. Eureka Server
-2. API Gateway
-3. Auth Service
-4. User Service
+2. Auth Service
+3. User Service
 5. Game Service
+6. Notification Service
 6. Team Service
 7. Tournament Service
 8. Registration Service
@@ -320,7 +320,7 @@ Contraseña: sa
 11. Ranking Service
 12. Sanction Service
 13. Prize Service
-14. Notification Service
+14. Gateway Service
 
 ---
 

@@ -37,3 +37,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# H2 Database files (file mode)
+**/data/*.mv.db
+**/data/*.trace.db
+data/
