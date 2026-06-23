@@ -45,4 +45,5 @@ public class Game {
 
     @Embedded
     private Audit audit = new Audit();
+    
 }

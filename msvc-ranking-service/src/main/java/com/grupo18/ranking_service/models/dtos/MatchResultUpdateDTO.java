@@ -1,15 +1,13 @@
 package com.grupo18.ranking_service.models.dtos;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class MatchResultUpdateDTO {
 
     @NotNull(message = "El torneo es obligatorio para actualizar el ranking")

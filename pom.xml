@@ -23,6 +23,8 @@
 
     <packaging>pom</packaging>
     <modules>
+        <module>msvc-eureka</module>
+        <module>msvc-gateway</module>
         <module>msvc-auth-service</module>
         <module>msvc-game-service</module>
         <module>msvc-match-service</module>
