@@ -20,8 +20,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @RestController @RequestMapping("/api/v2/teams") @Validated
 @Tag(name = "Team V2", description = "CRUD de teams con respuestas HATEOAS")
 public class TeamControllerV2 {
+
     @Autowired private TeamService teamService;
+
     @Autowired private TeamModelAssembler teamModelAssembler;
+
     @GetMapping
     @Operation(summary = "Listar teams")
     @ApiResponse(responseCode = "200", description = "OK")
@@ -31,7 +34,10 @@ public class TeamControllerV2 {
     }
     @GetMapping("/{id}")
     @Operation(summary = "Buscar Team por ID")
-    @ApiResponses(value={@ApiResponse(responseCode="200",description="Encontrado"),@ApiResponse(responseCode="404",description="No encontrado")})
+    @ApiResponses(
+            value={
+                    @ApiResponse(responseCode="200",description="Encontrado"),
+                    @ApiResponse(responseCode="404",description="No encontrado")})
     public ResponseEntity<EntityModel<Team>> findById(@Parameter(description="ID",required=true,example="1") @PathVariable Long id) {
         return ResponseEntity.ok(teamModelAssembler.toModel(teamService.findById(id)));
     }
@@ -42,7 +48,9 @@ public class TeamControllerV2 {
     }
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar Team")
-    @ApiResponses(value={@ApiResponse(responseCode="200",description="Actualizado"),@ApiResponse(responseCode="404",description="No encontrado")})
+    @ApiResponses(value={
+            @ApiResponse(responseCode="200",description="Actualizado"),
+            @ApiResponse(responseCode="404",description="No encontrado")})
     public ResponseEntity<EntityModel<Team>> update(@Parameter(description="ID",required=true,example="1") @PathVariable Long id, @Valid @RequestBody Team entity) {
         return ResponseEntity.ok(teamModelAssembler.toModel(teamService.updateById(id, entity)));
     }

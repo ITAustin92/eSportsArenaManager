@@ -21,7 +21,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @RestController @RequestMapping("/api/v2/sanctions") @Validated
 @Tag(name = "Sanctions V2", description = "Sanciones a jugadores/equipos con respuestas HATEOAS")
 public class SanctionControllerV2 {
+
     @Autowired private SanctionService sanctionService;
+
     @Autowired private SanctionModelAssembler sanctionModelAssembler;
 
     @GetMapping
@@ -34,7 +36,9 @@ public class SanctionControllerV2 {
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar sanción por ID")
-    @ApiResponses(value={@ApiResponse(responseCode="200",description="Encontrada"),@ApiResponse(responseCode="404",description="No encontrada")})
+    @ApiResponses(value={
+            @ApiResponse(responseCode="200",description="Encontrada"),
+            @ApiResponse(responseCode="404",description="No encontrada")})
     public ResponseEntity<EntityModel<Sanction>> findById(@Parameter(description="ID",required=true,example="1") @PathVariable Long id) {
         return ResponseEntity.ok(sanctionModelAssembler.toModel(sanctionService.findById(id)));
     }
@@ -47,7 +51,9 @@ public class SanctionControllerV2 {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Actualizar estado de la sanción", description = "Ej: ACTIVE, CLOSED")
-    @ApiResponses(value={@ApiResponse(responseCode="200",description="Actualizada"),@ApiResponse(responseCode="404",description="No encontrada")})
+    @ApiResponses(value={
+            @ApiResponse(responseCode="200",description="Actualizada"),
+            @ApiResponse(responseCode="404",description="No encontrada")})
     public ResponseEntity<EntityModel<Sanction>> updateStatus(
             @Parameter(description="ID",required=true,example="1") @PathVariable Long id,
             @Parameter(description="Nuevo estado",required=true,example="CLOSED") @RequestParam String status) {

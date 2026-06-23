@@ -161,14 +161,23 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Debe eliminar un usuario")
+    @DisplayName("Debe desactivar un usuario (borrado lógico)")
     public void shouldDeleteUser() {
-        doNothing().when(userRepository).deleteById(1L);
 
+        User usuarioMock = new User();
+        usuarioMock.setUsuarioId(1L);
+        usuarioMock.setEstado("ACTIVO");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuarioMock));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
         userService.deleteById(1L);
 
-        verify(userRepository, times(1)).deleteById(1L);
+        assertThat(usuarioMock.getEstado()).isEqualTo("INACTIVO");
+        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).save(usuarioMock);
     }
+
+
 
     @Test
     @DisplayName("Debe filtrar usuarios por rol")

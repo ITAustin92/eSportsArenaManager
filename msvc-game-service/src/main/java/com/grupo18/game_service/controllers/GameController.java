@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,24 +21,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/games")
 @Validated
-@Tag(name = "Games V1", description = "CRUD de videojuegos habilitados para torneos")
 public class GameController {
 
-    @Autowired private GameService gameService;
+    @Autowired
+    private GameService gameService;
 
     @GetMapping
-    @Operation(summary = "Listar juegos activos", description = "Devuelve todos los juegos con estado ACTIVO")
-    @ApiResponse(responseCode = "200", description = "Operación exitosa")
+    @Operation(summary = "Buscar juegos en estado ACTIVO")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Juegos en ACTIVO encontrados",
+                    content = @Content(schema = @Schema(implementation = GameDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Juegos en ACTIVO no encontrados")
+    })
     public ResponseEntity<List<Game>> findActivos() {
-        return ResponseEntity.status(HttpStatus.OK).body(gameService.findByEstado("ACTIVO"));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gameService.findByEstado("ACTIVO"));
     }
 
+
     @GetMapping("/estado/{estado}")
-    @Operation(summary = "Listar juegos por estado")
-    public ResponseEntity<List<Game>> findByEstado(
-            @Parameter(description = "Estado: ACTIVO | INACTIVO", required = true) @PathVariable String estado) {
-        return ResponseEntity.status(HttpStatus.OK).body(gameService.findByEstado(estado));
+    @Operation(summary = "Buscar juego por estado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Juegos encontrados",
+                    content = @Content(schema = @Schema(implementation = GameDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Juegos no encontrados")
+    })
+    public ResponseEntity<List<Game>> findByEstado(@Parameter(description = "Estado del juego", required = true, example = "ACTIVO") @PathVariable String estado) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gameService.findByEstado(estado));
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar juego por ID")
@@ -48,34 +61,43 @@ public class GameController {
                     content = @Content(schema = @Schema(implementation = GameDTO.class))),
             @ApiResponse(responseCode = "404", description = "Juego no encontrado")
     })
-    public ResponseEntity<Game> findById(
-            @Parameter(description = "ID del juego", required = true, example = "1") @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(gameService.findById(id));
+    public ResponseEntity<Game> findById(@Parameter(description = "ID del juego", required = true, example = "1") @PathVariable Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gameService.findById(id));
     }
+
 
     @PostMapping
-    @Operation(summary = "Crear juego")
+    @Operation(summary = "Guardado del juego", description = "Método que guarda el juego en la DB")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Juego a crear", required = true,
+            content = @Content(schema = @Schema(implementation = Game.class))
+    )
+    @ApiResponse(responseCode = "201", description = "Juego creado")
     public ResponseEntity<Game> save(@Valid @RequestBody Game juego) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(gameService.save(juego));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(gameService.save(juego));
     }
 
+
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar juego")
+    @Operation(summary = "Actualizacion de juego", description = "Se actualizan los datos de un juego existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Juego actualizado"),
-            @ApiResponse(responseCode = "404", description = "Juego no encontrado")
+            @ApiResponse(responseCode = "404", description = "Juego no se encuentra en la BD")
     })
-    public ResponseEntity<Game> update(
-            @Parameter(description = "ID del juego", required = true, example = "1") @PathVariable Long id,
-            @Valid @RequestBody Game juego) {
-        return ResponseEntity.status(HttpStatus.OK).body(gameService.updateById(id, juego));
+    public ResponseEntity<Game> update(@Parameter(description = "ID del juego", required = true, example = "1") @PathVariable Long id, @Valid @RequestBody Game juego) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gameService.updateById(id, juego));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Desactivar juego (soft delete)")
-    @ApiResponse(responseCode = "204", description = "Juego desactivado")
-    public ResponseEntity<Void> delete(
-            @Parameter(description = "ID del juego", required = true, example = "1") @PathVariable Long id) {
+    @Operation(summary = "Borrado del juego", description = "Se elimina juego de la base de datos")
+    @ApiResponse(responseCode = "204", description = "Juego eliminado")
+    public ResponseEntity<Void> delete(@Parameter(description = "ID del juego", required = true, example = "1") @PathVariable Long id) {
         gameService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

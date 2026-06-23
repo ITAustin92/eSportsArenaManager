@@ -2,7 +2,9 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/msvc-auth-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/msvc-eureka/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/msvc-game-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/msvc-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/msvc-match-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/msvc-notification-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/msvc-prize-service/src/main/java" charset="UTF-8" />

@@ -129,14 +129,14 @@ public class TournamentServiceTest {
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción si la fecha de término es anterior a la de inicio")
+    @DisplayName("Debe lanzar excepción si la fecha de termino es anterior a la de inicio")
     public void shouldThrowWhenEndDateBeforeStartDate() {
         tournamentPrueba.setEndDate(tournamentPrueba.getStartDate().minusDays(5));
         when(tournamentRepository.findByName(tournamentPrueba.getName())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tournamentService.save(tournamentPrueba))
                 .isInstanceOf(TournamentException.class)
-                .hasMessage("La fecha de término no puede ser anterior a la de inicio");
+                .hasMessage("La fecha de termino no puede ser anterior a la de inicio");
         verify(tournamentRepository, never()).save(any(Tournament.class));
     }
 

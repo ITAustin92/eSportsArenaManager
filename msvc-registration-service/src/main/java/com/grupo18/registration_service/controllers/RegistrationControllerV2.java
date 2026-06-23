@@ -36,7 +36,9 @@ public class RegistrationControllerV2 {
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar inscripción por ID")
-    @ApiResponses(value={@ApiResponse(responseCode="200",description="Encontrada"),@ApiResponse(responseCode="404",description="No encontrada")})
+    @ApiResponses(value={
+            @ApiResponse(responseCode="200",description="Encontrada"),
+            @ApiResponse(responseCode="404",description="No encontrada")})
     public ResponseEntity<EntityModel<Registration>> findById(@Parameter(description="ID",required=true,example="1") @PathVariable Long id) {
         return ResponseEntity.ok(registrationModelAssembler.toModel(registrationService.findById(id)));
     }
@@ -49,7 +51,9 @@ public class RegistrationControllerV2 {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Actualizar estado de la inscripción", description = "Ej: PENDING, ACCEPTED, REJECTED, CANCELLED")
-    @ApiResponses(value={@ApiResponse(responseCode="200",description="Actualizada"),@ApiResponse(responseCode="404",description="No encontrada")})
+    @ApiResponses(value={
+            @ApiResponse(responseCode="200",description="Actualizada"),
+            @ApiResponse(responseCode="404",description="No encontrada")})
     public ResponseEntity<EntityModel<Registration>> updateStatus(
             @Parameter(description="ID",required=true,example="1") @PathVariable Long id,
             @Parameter(description="Nuevo estado",required=true,example="ACCEPTED") @RequestParam String status) {

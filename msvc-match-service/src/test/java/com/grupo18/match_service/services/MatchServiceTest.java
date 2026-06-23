@@ -88,13 +88,14 @@ public class MatchServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción si un equipo juega contra sí mismo")
     public void shouldThrowWhenSameTeam() {
+
+        matchPrueba.setHomeTeamId(100L);
         matchPrueba.setAwayTeamId(100L);
-        when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
-        when(registrationClient.isTeamRegisteredInTournament(100L, 10L)).thenReturn(true);
 
         assertThatThrownBy(() -> matchService.save(matchPrueba))
                 .isInstanceOf(MatchException.class)
                 .hasMessage("Un equipo no puede jugar contra sí mismo");
+
         verify(matchRepository, never()).save(any(Match.class));
     }
 

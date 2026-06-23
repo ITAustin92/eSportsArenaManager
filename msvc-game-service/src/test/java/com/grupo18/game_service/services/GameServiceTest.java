@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,18 +25,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
 
-    // @Mock: objeto falso. Decide qué devuelve con when(...).
+// @Mock: objeto falso. Decide qué devuelve con when(...).
     @Mock
     private GameRepository gameRepository;
 
-    // @InjectMocks: crea el servicio real y le inyecta los @Mock de arriba.
+   // @InjectMocks: crea el servicio real y le inyecta los @Mock de arriba.
     @InjectMocks
     private GameServiceImpl gameService;
 
     private Game gamePrueba;
     private List<Game> gameList = new ArrayList<>();
 
-    // @BeforeEach: se ejecuta antes de CADA test para dejar los datos en estado conocido.
+ // @BeforeEach: se ejecuta antes de CADA test para dejar los datos en estado conocido.
     @BeforeEach
     public void setUp() {
         gamePrueba = new Game();
@@ -58,20 +59,20 @@ public class GameServiceTest {
         }
     }
 
-    // Patrón AAA: Arrange (preparar) → Act (ejecutar) → Assert (verificar).
+// Patrón AAA: Arrange (preparar) → Act (ejecutar) → Assert (verificar).
 
     @Test
     @DisplayName("Debe listar todos los juegos")
     public void shouldListAllGames() {
-        // Arrange
+// Arrange
         List<Game> games = new ArrayList<>(gameList);
         games.add(gamePrueba);
         when(gameRepository.findAll()).thenReturn(games);
 
-        // Act
+   // Act
         List<Game> result = gameService.findAll();
 
-        // Assert
+// Assert
         assertThat(result).hasSize(6);
         assertThat(result).contains(gamePrueba);
         verify(gameRepository, times(1)).findAll();
@@ -80,13 +81,13 @@ public class GameServiceTest {
     @Test
     @DisplayName("Debe buscar un juego por su ID")
     public void shouldFindGameById() {
-        // Arrange
+// Arrange
         when(gameRepository.findById(1L)).thenReturn(Optional.of(gamePrueba));
 
-        // Act
+// Act
         Game result = gameService.findById(1L);
 
-        // Assert
+// Assert
         assertThat(result).isNotNull();
         assertThat(result.getNombre()).isEqualTo("Valorant");
         verify(gameRepository, times(1)).findById(1L);
@@ -95,10 +96,10 @@ public class GameServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción al buscar ID inexistente")
     public void shouldThrowWhenGameNotFoundById() {
-        // Arrange
+ // Arrange
         when(gameRepository.findById(9999L)).thenReturn(Optional.empty());
 
-        // Act + Assert
+  // Act + Assert
         assertThatThrownBy(() -> gameService.findById(9999L))
                 .isInstanceOf(GameException.class)
                 .hasMessage("Juego no encontrado");
@@ -141,22 +142,41 @@ public class GameServiceTest {
     public void shouldUpdateGame() {
         // Arrange
         Long id = 1L;
+
+        Game gameExistenteEnBd = new Game();
+        gameExistenteEnBd.setJuegoId(id);
+        gameExistenteEnBd.setModalidad("EQUIPOS");
+        gameExistenteEnBd.setJugadoresPorEquipo(5);
+        gameExistenteEnBd.setEstado("INACTIVO");
+
         Game cambios = new Game();
         cambios.setModalidad("INDIVIDUAL");
         cambios.setJugadoresPorEquipo(1);
         cambios.setEstado("ACTIVO");
 
-        when(gameRepository.findById(id)).thenReturn(Optional.of(gamePrueba));
+        when(gameRepository.findById(id)).thenReturn(Optional.of(gameExistenteEnBd));
         when(gameRepository.save(any(Game.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // Act
         Game result = gameService.updateById(id, cambios);
 
-        // Assert
+        // Assert de la respuesta
         assertThat(result.getModalidad()).isEqualTo("INDIVIDUAL");
         assertThat(result.getJugadoresPorEquipo()).isEqualTo(1);
-        verify(gameRepository, times(1)).findById(id);
-        verify(gameRepository, times(1)).save(gamePrueba);
+        assertThat(result.getEstado()).isEqualTo("ACTIVO");
+
+        verify(gameRepository).findById(id);
+
+        // 🛠️ LA SOLUCIÓN: verify con any() para que Mockito no se ponga estricto con la referencia
+        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
+        verify(gameRepository).save(gameCaptor.capture()); // Captura lo que sea que haya enviado el servicio
+
+        // Aquí es donde realmente testeamos si los datos internos están bien
+        Game gameGuardado = gameCaptor.getValue();
+        assertThat(gameGuardado.getJuegoId()).isEqualTo(id);
+        assertThat(gameGuardado.getModalidad()).isEqualTo("INDIVIDUAL");
+        assertThat(gameGuardado.getJugadoresPorEquipo()).isEqualTo(1);
+        assertThat(gameGuardado.getEstado()).isEqualTo("ACTIVO");
     }
 
     @Test
@@ -175,17 +195,26 @@ public class GameServiceTest {
     @Test
     @DisplayName("Debe desactivar (soft-delete) un juego existente")
     public void shouldDeactivateGame() {
-        // Arrange
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(gamePrueba));
-        when(gameRepository.save(any(Game.class))).thenReturn(gamePrueba);
 
-        // Act
-        gameService.deleteById(1L);
+        Long id = 1L;
 
-        // Assert: el estado debe haber cambiado a INACTIVO.
-        assertThat(gamePrueba.getEstado()).isEqualTo("INACTIVO");
-        verify(gameRepository, times(1)).findById(1L);
-        verify(gameRepository, times(1)).save(gamePrueba);
+        Game gameParaDesactivar = new Game();
+        gameParaDesactivar.setJuegoId(id);
+        gameParaDesactivar.setEstado("ACTIVO");
+
+        when(gameRepository.findById(id)).thenReturn(Optional.of(gameParaDesactivar));
+        when(gameRepository.save(any(Game.class))).thenAnswer(inv -> inv.getArgument(0));
+        gameService.deleteById(id);
+
+        verify(gameRepository).findById(id);
+
+        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
+
+        verify(gameRepository).save(gameCaptor.capture());
+
+        Game gameGuardado = gameCaptor.getValue();
+        assertThat(gameGuardado.getEstado()).isEqualTo("INACTIVO");
+        assertThat(gameGuardado.getJuegoId()).isEqualTo(id);
     }
 
     @Test
