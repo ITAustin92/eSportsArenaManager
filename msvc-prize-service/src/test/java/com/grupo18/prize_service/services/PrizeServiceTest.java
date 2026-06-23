@@ -121,4 +121,47 @@ public class PrizeServiceTest {
                 .hasMessageContaining("Solo se pueden repartir premios cuando el torneo está en estado FINISHED");
         verify(prizeRepository, never()).save(any(Prize.class));
     }
+
+    @Test
+    @DisplayName("Debe listar todos los premios")
+    public void shouldListAllPrizes() {
+        // Given
+        when(prizeRepository.findAll()).thenReturn(List.of(prizePrueba));
+
+        // When
+        List<Prize> result = prizeService.findAll();
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(prizeRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Debe buscar premios por torneo")
+    public void shouldFindByTournamentId() {
+        // Given
+        when(prizeRepository.findByTournamentId(1L)).thenReturn(List.of(prizePrueba));
+
+        // When
+        List<Prize> result = prizeService.findByTournamentId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(prizeRepository, times(1)).findByTournamentId(1L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar premios por equipo ganador")
+    public void shouldFindByTeamId() {
+        // Given
+        when(prizeRepository.findByTeamId(10L)).thenReturn(List.of(prizePrueba));
+
+        // When
+        List<Prize> result = prizeService.findByTeamId(10L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(prizeRepository, times(1)).findByTeamId(10L);
+    }
+
 }

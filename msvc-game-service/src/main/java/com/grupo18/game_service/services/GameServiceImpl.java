@@ -63,10 +63,10 @@ public class GameServiceImpl implements GameService {
     @Transactional
     @Override
     public void deleteById(Long id) {
-        log.info("Intenta desctivar juego con UD:{}", id);
+        log.info("Intentando desactivar juego con ID: {}", id);
         Game juego = this.findById(id);
         juego.setEstado("INACTIVO");
-
+        this.gameRepository.save(juego);
         log.info("Juego con ID: {} desactivado exitosamente", id);
     }
 
@@ -79,8 +79,8 @@ public class GameServiceImpl implements GameService {
             element.setJugadoresPorEquipo(juego.getJugadoresPorEquipo());
             element.setEstado(juego.getEstado());
             Game updated = this.gameRepository.save(element);
-            log.info("Juego ID {} actualizado. Modalidad: '{}', Estado: '{}'", updated.getJuegoId(), updated.getModalidad(),updated.getEstado());
-            return this.gameRepository.save(element);
+            log.info("Juego ID {} actualizado. Modalidad: '{}', Estado: '{}'", updated.getJuegoId(), updated.getModalidad(), updated.getEstado());
+            return updated;
         }).orElseThrow(() -> {
             log.warn("No se encontró juego con ID {} para actualizar", id);
             return new GameException("Juego no encontrado");

@@ -30,11 +30,21 @@ public class NotificationServiceTest {
 
     private NotificationRequestDTO requestPrueba;
 
+    private Notification notificationPrueba;
+
+
+
     @BeforeEach
     public void setUp() {
         requestPrueba = new NotificationRequestDTO(
                 1L, null, 10L, "REGISTRATION_ACCEPTED", "Inscripción aceptada", "Tu equipo fue inscrito al torneo"
         );
+
+        notificationPrueba = new Notification();
+        notificationPrueba.setNotificationId(1L);
+        notificationPrueba.setUserId(1L);
+        notificationPrueba.setTeamId(5L);
+        notificationPrueba.setTournamentId(10L);
     }
 
     @Test
@@ -114,4 +124,47 @@ public class NotificationServiceTest {
         assertThat(result).hasSize(1);
         verify(notificationRepository, times(1)).findByUserId(1L);
     }
+
+    @Test
+    @DisplayName("Debe listar todas las notificaciones")
+    public void shouldListAllNotifications() {
+        // Given
+        when(notificationRepository.findAll()).thenReturn(List.of(notificationPrueba));
+
+        // When
+        List<Notification> result = notificationService.findAll();
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(notificationRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Debe buscar notificaciones por equipo")
+    public void shouldFindByTeamId() {
+        // Given
+        when(notificationRepository.findByTeamId(5L)).thenReturn(List.of(notificationPrueba));
+
+        // When
+        List<Notification> result = notificationService.findByTeamId(5L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(notificationRepository, times(1)).findByTeamId(5L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar notificaciones por torneo")
+    public void shouldFindByTournamentId() {
+        // Given
+        when(notificationRepository.findByTournamentId(10L)).thenReturn(List.of(notificationPrueba));
+
+        // When
+        List<Notification> result = notificationService.findByTournamentId(10L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(notificationRepository, times(1)).findByTournamentId(10L);
+    }
+
 }

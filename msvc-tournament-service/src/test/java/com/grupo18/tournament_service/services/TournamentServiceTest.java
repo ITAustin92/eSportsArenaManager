@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.mockito.ArgumentCaptor;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -162,4 +163,67 @@ public class TournamentServiceTest {
         assertThat(tournamentPrueba.getState()).isEqualTo("CANCELLED");
         verify(tournamentRepository, times(1)).save(tournamentPrueba);
     }
+
+    @Test
+    @DisplayName("Debe buscar torneos por juego")
+    public void shouldFindByGameId() {
+        // Given
+        when(tournamentRepository.findByGameId(1L)).thenReturn(List.of(tournamentPrueba));
+
+        // When
+        List<Tournament> result = tournamentService.findByGameId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(tournamentRepository, times(1)).findByGameId(1L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar torneos por organizador")
+    public void shouldFindByOrganizerId() {
+        // Given
+        when(tournamentRepository.findByOrganizerId(1L)).thenReturn(List.of(tournamentPrueba));
+
+        // When
+        List<Tournament> result = tournamentService.findByOrganizerId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(tournamentRepository, times(1)).findByOrganizerId(1L);
+    }
+
+    @Test
+    @DisplayName("Debe actualizar un torneo existente")
+    public void shouldUpdateTournament() {
+        // Given
+        Tournament cambios = new Tournament();
+        cambios.setName(tournamentPrueba.getName()); // mismo nombre, sin conflicto
+        cambios.setStartDate(tournamentPrueba.getStartDate());
+        cambios.setEndDate(tournamentPrueba.getEndDate());
+        cambios.setState("IN_PROGRESS");
+
+        when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournamentPrueba));
+        when(tournamentRepository.save(any(Tournament.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Tournament result = tournamentService.updateById(1L, cambios);
+
+        // Then
+        assertThat(result.getState()).isEqualTo("IN_PROGRESS");
+        verify(tournamentRepository, times(1)).save(any(Tournament.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al actualizar torneo inexistente")
+    public void shouldThrowWhenUpdateTournamentNotFound() {
+        // Given
+        when(tournamentRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> tournamentService.updateById(9999L, tournamentPrueba))
+                .isInstanceOf(TournamentException.class)
+                .hasMessage("Torneo no encontrado para actualizar");
+        verify(tournamentRepository, never()).save(any(Tournament.class));
+    }
+
 }

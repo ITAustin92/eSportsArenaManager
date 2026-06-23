@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -131,4 +132,83 @@ public class MatchServiceTest {
         assertThat(matchPrueba.getStatus()).isEqualTo("CANCELLED");
         verify(matchRepository, times(1)).save(matchPrueba);
     }
+
+    @Test
+    @DisplayName("Debe listar todos los partidos")
+    public void shouldListAllMatches() {
+        // Given
+        List<Match> lista = List.of(matchPrueba);
+        when(matchRepository.findAll()).thenReturn(lista);
+
+        // When
+        List<Match> result = matchService.findAll();
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(matchRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Debe buscar partidos por torneo")
+    public void shouldFindByTournamentId() {
+        // Given
+        when(matchRepository.findByTournamentId(10L)).thenReturn(List.of(matchPrueba));
+
+        // When
+        List<Match> result = matchService.findByTournamentId(10L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(matchRepository, times(1)).findByTournamentId(10L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar partidos por equipo")
+    public void shouldFindByTeamId() {
+        // Given
+        when(matchRepository.findByHomeTeamIdOrAwayTeamId(1L, 1L)).thenReturn(List.of(matchPrueba));
+
+        // When
+        List<Match> result = matchService.findByTeamId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(matchRepository, times(1)).findByHomeTeamIdOrAwayTeamId(1L, 1L);
+    }
+
+    @Test
+    @DisplayName("Debe actualizar un partido existente")
+    public void shouldUpdateMatch() {
+        // Given
+        Match cambios = new Match();
+        cambios.setStatus("IN_PROGRESS");
+        cambios.setHomeScore(2);
+        cambios.setAwayScore(1);
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(matchPrueba));
+        when(matchRepository.save(any(Match.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Match result = matchService.updateById(1L, cambios);
+
+        // Then
+        assertThat(result.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(result.getHomeScore()).isEqualTo(2);
+        assertThat(result.getAwayScore()).isEqualTo(1);
+        verify(matchRepository, times(1)).save(any(Match.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al actualizar partido inexistente")
+    public void shouldThrowWhenUpdateMatchNotFound() {
+        // Given
+        when(matchRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> matchService.updateById(9999L, matchPrueba))
+                .isInstanceOf(MatchException.class)
+                .hasMessage("Partido no encontrado");
+        verify(matchRepository, never()).save(any(Match.class));
+    }
+
 }

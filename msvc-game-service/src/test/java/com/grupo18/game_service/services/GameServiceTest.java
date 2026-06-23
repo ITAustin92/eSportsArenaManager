@@ -25,18 +25,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
 
-// @Mock: objeto falso. Decide qué devuelve con when(...).
+    // @Mock: objeto falso. Decide qué devuelve con when(...).
     @Mock
     private GameRepository gameRepository;
 
-   // @InjectMocks: crea el servicio real y le inyecta los @Mock de arriba.
+    // @InjectMocks: crea el servicio real y le inyecta los @Mock de arriba.
     @InjectMocks
     private GameServiceImpl gameService;
 
     private Game gamePrueba;
     private List<Game> gameList = new ArrayList<>();
 
- // @BeforeEach: se ejecuta antes de CADA test para dejar los datos en estado conocido.
+    // @BeforeEach: se ejecuta antes de CADA test para dejar los datos en estado conocido.
     @BeforeEach
     public void setUp() {
         gamePrueba = new Game();
@@ -69,7 +69,7 @@ public class GameServiceTest {
         games.add(gamePrueba);
         when(gameRepository.findAll()).thenReturn(games);
 
-   // Act
+        // Act
         List<Game> result = gameService.findAll();
 
 // Assert
@@ -96,10 +96,10 @@ public class GameServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción al buscar ID inexistente")
     public void shouldThrowWhenGameNotFoundById() {
- // Arrange
+        // Arrange
         when(gameRepository.findById(9999L)).thenReturn(Optional.empty());
 
-  // Act + Assert
+        // Act + Assert
         assertThatThrownBy(() -> gameService.findById(9999L))
                 .isInstanceOf(GameException.class)
                 .hasMessage("Juego no encontrado");
@@ -160,23 +160,14 @@ public class GameServiceTest {
         // Act
         Game result = gameService.updateById(id, cambios);
 
-        // Assert de la respuesta
+        // Assert
         assertThat(result.getModalidad()).isEqualTo("INDIVIDUAL");
         assertThat(result.getJugadoresPorEquipo()).isEqualTo(1);
         assertThat(result.getEstado()).isEqualTo("ACTIVO");
+        assertThat(result.getJuegoId()).isEqualTo(id);
 
         verify(gameRepository).findById(id);
-
-        // 🛠️ LA SOLUCIÓN: verify con any() para que Mockito no se ponga estricto con la referencia
-        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
-        verify(gameRepository).save(gameCaptor.capture()); // Captura lo que sea que haya enviado el servicio
-
-        // Aquí es donde realmente testeamos si los datos internos están bien
-        Game gameGuardado = gameCaptor.getValue();
-        assertThat(gameGuardado.getJuegoId()).isEqualTo(id);
-        assertThat(gameGuardado.getModalidad()).isEqualTo("INDIVIDUAL");
-        assertThat(gameGuardado.getJugadoresPorEquipo()).isEqualTo(1);
-        assertThat(gameGuardado.getEstado()).isEqualTo("ACTIVO");
+        verify(gameRepository, times(1)).save(any(Game.class));
     }
 
     @Test
@@ -195,7 +186,7 @@ public class GameServiceTest {
     @Test
     @DisplayName("Debe desactivar (soft-delete) un juego existente")
     public void shouldDeactivateGame() {
-
+        // Arrange
         Long id = 1L;
 
         Game gameParaDesactivar = new Game();
@@ -204,12 +195,13 @@ public class GameServiceTest {
 
         when(gameRepository.findById(id)).thenReturn(Optional.of(gameParaDesactivar));
         when(gameRepository.save(any(Game.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Act
         gameService.deleteById(id);
 
-        verify(gameRepository).findById(id);
-
+        // Assert
         ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
-
+        verify(gameRepository).findById(id);
         verify(gameRepository).save(gameCaptor.capture());
 
         Game gameGuardado = gameCaptor.getValue();

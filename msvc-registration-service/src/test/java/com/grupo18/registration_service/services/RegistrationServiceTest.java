@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -135,4 +136,75 @@ public class RegistrationServiceTest {
         assertThat(registrationPrueba.getStatus()).isEqualTo("CANCELLED");
         verify(registrationRepository, times(1)).save(registrationPrueba);
     }
+
+    @Test
+    @DisplayName("Debe listar todas las inscripciones")
+    public void shouldListAllRegistrations() {
+        // Given
+        when(registrationRepository.findAll()).thenReturn(List.of(registrationPrueba));
+
+        // When
+        List<Registration> result = registrationService.findAll();
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(registrationRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Debe buscar inscripciones por equipo")
+    public void shouldFindByTeamId() {
+        // Given
+        when(registrationRepository.findByTeamId(100L)).thenReturn(List.of(registrationPrueba));
+
+        // When
+        List<Registration> result = registrationService.findByTeamId(100L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(registrationRepository, times(1)).findByTeamId(100L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar inscripciones por torneo")
+    public void shouldFindByTournamentId() {
+        // Given
+        when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(registrationPrueba));
+
+        // When
+        List<Registration> result = registrationService.findByTournamentId(10L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(registrationRepository, times(1)).findByTournamentId(10L);
+    }
+
+    @Test
+    @DisplayName("Debe verificar si un equipo está inscrito en un torneo")
+    public void shouldCheckIfTeamIsRegistered() {
+        // Given
+        when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L))
+                .thenReturn(Optional.of(registrationPrueba));
+
+        // When
+        boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 10L);
+
+        // Then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("Debe retornar false si el equipo no está inscrito")
+    public void shouldReturnFalseWhenNotRegistered() {
+        // Given
+        when(registrationRepository.findByTeamIdAndTournamentId(100L, 99L))
+                .thenReturn(Optional.empty());
+
+        // When
+        boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 99L);
+
+        // Then
+        assertThat(result).isFalse();
+    }
+
 }

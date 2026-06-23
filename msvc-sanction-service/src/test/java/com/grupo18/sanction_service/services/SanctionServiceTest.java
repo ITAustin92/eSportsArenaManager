@@ -3,6 +3,7 @@ package com.grupo18.sanction_service.services;
 import com.grupo18.sanction_service.clients.TeamClient;
 import com.grupo18.sanction_service.clients.TournamentClient;
 import com.grupo18.sanction_service.clients.UserClient;
+import com.grupo18.sanction_service.exceptions.SanctionException;
 import com.grupo18.sanction_service.models.Sanction;
 import com.grupo18.sanction_service.models.dtos.TeamDTO;
 import com.grupo18.sanction_service.models.dtos.TournamentDTO;
@@ -133,4 +134,60 @@ public class SanctionServiceTest {
         assertThat(result).hasSize(1);
         verify(sanctionRepository, times(1)).findByTeamId(1L);
     }
+
+    @Test
+    @DisplayName("Debe listar todas las sanciones")
+    public void shouldListAllSanctions() {
+        // Given
+        when(sanctionRepository.findAll()).thenReturn(List.of(sanctionPrueba));
+
+        // When
+        List<Sanction> result = sanctionService.findAll();
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(sanctionRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Debe buscar sanciones por torneo")
+    public void shouldFindByTournamentId() {
+        // Given
+        when(sanctionRepository.findByTournamentId(1L)).thenReturn(List.of(sanctionPrueba));
+
+        // When
+        List<Sanction> result = sanctionService.findByTournamentId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(sanctionRepository, times(1)).findByTournamentId(1L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar sanciones por usuario")
+    public void shouldFindByUserId() {
+        // Given
+        when(sanctionRepository.findByUserId(5L)).thenReturn(List.of(sanctionPrueba));
+
+        // When
+        List<Sanction> result = sanctionService.findByUserId(5L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(sanctionRepository, times(1)).findByUserId(5L);
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al actualizar sanción inexistente")
+    public void shouldThrowWhenUpdateStatusNotFound() {
+        // Given
+        when(sanctionRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> sanctionService.updateStatus(9999L, "CLOSED"))
+                .isInstanceOf(SanctionException.class)
+                .hasMessage("Sanción no encontrada");
+        verify(sanctionRepository, never()).save(any(Sanction.class));
+    }
+
 }

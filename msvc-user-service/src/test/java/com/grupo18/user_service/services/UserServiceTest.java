@@ -45,7 +45,7 @@ public class UserServiceTest {
         for (int i = 0; i < 10; i++) {
             User u = new User();
             u.setNombre(faker.name().fullName());
-            u.setNickname(faker.internet().username());
+            u.setNickname(faker.internet().slug());
             u.setCorreo(faker.internet().emailAddress());
             u.setRol("JUGADOR");
             u.setEstado("ACTIVO");
@@ -189,4 +189,71 @@ public class UserServiceTest {
         assertThat(result).hasSize(10);
         verify(userRepository, times(1)).findByRol("JUGADOR");
     }
+
+    @Test
+    @DisplayName("Debe buscar usuario por correo")
+    public void shouldFindByCorreo() {
+        // Given
+        when(userRepository.findByCorreo("test@test.com")).thenReturn(Optional.of(userPrueba));
+
+        // When
+        User result = userService.findByCorreo("test@test.com");
+
+        // Then
+        assertThat(result).isNotNull();
+        verify(userRepository, times(1)).findByCorreo("test@test.com");
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al buscar usuario por correo inexistente")
+    public void shouldThrowWhenCorreoNotFound() {
+        // Given
+        when(userRepository.findByCorreo("noexiste@test.com")).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> userService.findByCorreo("noexiste@test.com"))
+                .isInstanceOf(UserException.class)
+                .hasMessage("Usuario no encontrado");
+    }
+
+    @Test
+    @DisplayName("Debe buscar usuario por nickname")
+    public void shouldFindByNickname() {
+        // Given
+        when(userRepository.findByNickname("gamer01")).thenReturn(Optional.of(userPrueba));
+
+        // When
+        User result = userService.findByNickname("gamer01");
+
+        // Then
+        assertThat(result).isNotNull();
+        verify(userRepository, times(1)).findByNickname("gamer01");
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción al buscar usuario por nickname inexistente")
+    public void shouldThrowWhenNicknameNotFound() {
+        // Given
+        when(userRepository.findByNickname("fantasma")).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> userService.findByNickname("fantasma"))
+                .isInstanceOf(UserException.class)
+                .hasMessage("Usuario no encontrado");
+    }
+
+    @Test
+    @DisplayName("Debe buscar usuarios por estado")
+    public void shouldFindByEstado() {
+        // Given
+        when(userRepository.findByEstado("ACTIVO")).thenReturn(List.of(userPrueba));
+
+        // When
+        List<User> result = userService.findByEstado("ACTIVO");
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(userRepository, times(1)).findByEstado("ACTIVO");
+    }
+
 }

@@ -166,4 +166,33 @@ public class TeamServiceTest {
         assertThat(result).hasSize(1);
         verify(teamRepository, times(1)).findByEstado("ACTIVO");
     }
+
+    @Test
+    @DisplayName("Debe buscar equipos por juego principal")
+    public void shouldFindByJuegoPrincipalId() {
+        // Given
+        when(teamRepository.findByJuegoPrincipalId(1L)).thenReturn(List.of(teamPrueba));
+
+        // When
+        List<Team> result = teamService.findByJuegoPrincipalId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(teamRepository, times(1)).findByJuegoPrincipalId(1L);
+    }
+
+    @Test
+    @DisplayName("Debe buscar equipos por capitán")
+    public void shouldFindByCapitanId() {
+        // Given
+        when(teamRepository.findByCapitanId(1L)).thenReturn(List.of(teamPrueba));
+
+        // When
+        List<Team> result = teamService.findByCapitanId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(teamRepository, times(1)).findByCapitanId(1L);
+    }
+
 }
