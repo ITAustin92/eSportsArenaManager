@@ -241,7 +241,7 @@ para garantizar respuestas HTTP consistentes.
 
 # Testing
 
-Se implementaron pruebas unitarias en 10 de los 11 microservicios.
+Se implementaron pruebas unitarias en todos los microservicios de negocio.
 
 Tecnologías utilizadas:
 
@@ -273,13 +273,7 @@ Cada microservicio expone documentación Swagger/OpenAPI.
 
 Acceso:
 
-/swagger-ui.html
-
-o
-
-/swagger-ui/index.html
-
-(según configuración del servicio)
+http://localhost:8080/docs/swagger-ui.html
 
 ---
 
@@ -310,16 +304,16 @@ Contraseña: sa
 1. Eureka Server
 2. Auth Service
 3. User Service
-5. Game Service
-6. Notification Service
-6. Team Service
-7. Tournament Service
+4. Game Service
+5. Team Service
+6. Tournament Service
+7. Sanction Service
 8. Registration Service
 9. Match Service
 10. Result Service
 11. Ranking Service
-12. Sanction Service
-13. Prize Service
+12. Prize Service
+13. Notification Service
 14. Gateway Service
 
 ---
