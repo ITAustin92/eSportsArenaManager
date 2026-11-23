@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 // Conexión con el servicio de torneos en el puerto 8003
-@FeignClient(name = "tournament-service", url = "http://localhost:8003/api/v1/tournaments")
+@FeignClient(
+	name = "tournament-service",
+	url = "${servicios.tournament-url:http://localhost:8003}/api/v1/tournaments"
+)
 public interface TournamentClient {
-
-    @GetMapping("/{id}")
-    TournamentDTO getTournamentById(@PathVariable Long id);
+	@GetMapping("/{id}")
+	TournamentDTO getTournamentById(@PathVariable Long id);
 }

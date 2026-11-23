@@ -157,13 +157,13 @@ spring:
 
 # Punto de entrada único: todo el tráfico entra por aquí.
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 # El gateway también es cliente Eureka para poder resolver los lb://
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
 
 # Swagger UI agregado: una sola página con un desplegable para elegir el microservicio.
 springdoc:
@@ -196,6 +196,20 @@ springdoc:
       - name: notifications
         url: /api-docs/notifications
 
+# Orígenes del frontend permitidos por CORS (separados por coma). En producción: la URL de Vercel/Netlify.
+app:
+  cors:
+    origenes: ${CORS_ORIGENES:http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173}
+
 # CLAVE SECRETA JWT: la MISMA que en msvc-auth-service y en todos los microservicios.
 jwt:
-  secret: clave-secreta-super-segura-para-jwt-esports-arena-manager-grupo18-2026
+  secret: ${JWT_SECRETO:clave-secreta-super-segura-para-jwt-esports-arena-manager-grupo18-2026}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

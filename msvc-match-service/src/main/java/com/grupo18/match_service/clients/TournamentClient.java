@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 // Apuntamos al puerto 8003 donde vive el tournament-service
-@FeignClient(name = "msvc-tournament-service", url = "http://localhost:8003/api/v1/tournaments")
+@FeignClient(
+	name = "msvc-tournament-service",
+	url = "${servicios.tournament-url:http://localhost:8003}/api/v1/tournaments"
+)
 public interface TournamentClient {
-
-    @GetMapping("/{id}")
-    TournamentDTO getTournamentById(@PathVariable Long id);
+	@GetMapping("/{id}")
+	TournamentDTO getTournamentById(@PathVariable Long id);
 }

@@ -8,7 +8,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class RankingServiceApplicationTests {
 
 	@Test
-	void contextLoads() {
-	}
-
+	void contextLoads() {}
 }

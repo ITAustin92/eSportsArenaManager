@@ -4,17 +4,17 @@ import com.grupo18.match_service.models.Match;
 import java.util.List;
 
 public interface MatchService {
-    List<Match> findAll();
+	List<Match> findAll();
 
-    Match save(Match match);
+	Match save(Match match);
 
-    Match findById(Long id);
+	Match findById(Long id);
 
-    List<Match> findByTournamentId(Long tournamentId);
+	List<Match> findByTournamentId(Long tournamentId);
 
-    List<Match> findByTeamId(Long teamId);
+	List<Match> findByTeamId(Long teamId);
 
-    Match updateById(Long id, Match match);
+	Match updateById(Long id, Match match);
 
-    void deleteById(Long id);
+	void deleteById(Long id);
 }

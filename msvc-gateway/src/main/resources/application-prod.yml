@@ -1,0 +1,39 @@
+# Producción: persistencia y configuración externa; nunca se carga data.sql.
+jwt:
+  secret: ${JWT_SECRETO}
+eureka:
+  client:
+    enabled: false
+app:
+  cors:
+    origenes: ${CORS_ORIGENES}
+spring:
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            msvc-user-service:
+              - uri: ${USER_SERVICE_URL}
+            msvc-game-service:
+              - uri: ${GAME_SERVICE_URL}
+            msvc-team-service:
+              - uri: ${TEAM_SERVICE_URL}
+            msvc-tournament-service:
+              - uri: ${TOURNAMENT_SERVICE_URL}
+            msvc-registration-service:
+              - uri: ${REGISTRATION_SERVICE_URL}
+            msvc-match-service:
+              - uri: ${MATCH_SERVICE_URL}
+            msvc-result-service:
+              - uri: ${RESULT_SERVICE_URL}
+            msvc-ranking-service:
+              - uri: ${RANKING_SERVICE_URL}
+            msvc-sanction-service:
+              - uri: ${SANCTION_SERVICE_URL}
+            msvc-prize-service:
+              - uri: ${PRIZE_SERVICE_URL}
+            msvc-notification-service:
+              - uri: ${NOTIFICATION_SERVICE_URL}
+            msvc-auth-service:
+              - uri: ${AUTH_SERVICE_URL}

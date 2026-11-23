@@ -7,7 +7,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class TeamServiceApplicationTests {
 
 	@Test
-	void contextLoads() {
-	}
-
+	void contextLoads() {}
 }

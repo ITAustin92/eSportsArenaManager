@@ -10,14 +10,12 @@ import lombok.*;
 @AllArgsConstructor
 public class MatchResultUpdateDTO {
 
-    @NotNull(message = "El torneo es obligatorio para actualizar el ranking")
-    private Long tournamentId;
+	@NotNull(message = "El torneo es obligatorio para actualizar el ranking")
+	private Long tournamentId;
 
-    @NotNull(message = "El equipo ganador es obligatorio")
-    private Long winnerTeamId;
+	@NotNull(message = "El equipo ganador es obligatorio")
+	private Long winnerTeamId;
 
-
-    @NotNull(message = "El equipo perdedor es obligatorio")
-    private Long loserTeamId;
-
+	@NotNull(message = "El equipo perdedor es obligatorio")
+	private Long loserTeamId;
 }

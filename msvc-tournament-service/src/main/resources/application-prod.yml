@@ -1,0 +1,34 @@
+# Producción: persistencia y configuración externa; nunca se carga data.sql.
+jwt:
+  secret: ${JWT_SECRETO}
+eureka:
+  client:
+    enabled: false
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USUARIO}
+    password: ${DB_CLAVE}
+    hikari:
+      maximum-pool-size: 2
+      connection-timeout: 10000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: arena_tournament
+        hbm2ddl:
+          create_namespaces: true
+  sql:
+    init:
+      mode: never
+  h2:
+    console:
+      enabled: false
+servicios:
+  game-url: ${GAME_SERVICE_URL}
+  user-url: ${USER_SERVICE_URL}

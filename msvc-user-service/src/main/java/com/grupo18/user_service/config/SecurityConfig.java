@@ -1,4 +1,8 @@
 package com.grupo18.user_service.config;
+
+import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,33 +15,69 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-// Resource Server: valida el JWT en cada petición (segunda barrera de seguridad).
+
+// Resource Server: valida el JWT en cada petición y el ROL de cada ruta (segunda barrera de seguridad).
+// Los roles vienen en el claim "roles" del token (ROLE_ADMIN, ROLE_ORGANIZADOR, ROLE_JUGADOR).
 @Configuration
 public class SecurityConfig {
-    @Value("${jwt.secret}") private String secret;
-    @Bean public JwtDecoder jwtDecoder() {
-        SecretKey key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
-    }
-    @Bean public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter a = new JwtGrantedAuthoritiesConverter();
-        a.setAuthoritiesClaimName("roles"); a.setAuthorityPrefix("");
-        JwtAuthenticationConverter c = new JwtAuthenticationConverter();
-        c.setJwtGrantedAuthoritiesConverter(a); return c;
-    }
-    @Bean public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationConverter conv) throws Exception {
-        http.csrf(c -> c.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/docs/**","/swagger-ui/**","/v3/api-docs/**","/h2-console/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/**","/api/v2/users/**").hasAnyRole("ADMIN","ORGANIZADOR","JUGADOR")
-                .requestMatchers("/api/v1/users/**","/api/v2/users/**").hasAnyRole("ADMIN","ORGANIZADOR")
-                .anyRequest().authenticated())
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(conv)))
-            .headers(h -> h.frameOptions(f -> f.disable()));
-        return http.build();
-    }
+
+	@Value("${jwt.secret}")
+	private String secret;
+
+	@Bean
+	public JwtDecoder jwtDecoder() {
+		SecretKey key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+		return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
+	}
+
+	@Bean
+	public JwtAuthenticationConverter jwtAuthenticationConverter() {
+		JwtGrantedAuthoritiesConverter a = new JwtGrantedAuthoritiesConverter();
+		a.setAuthoritiesClaimName("roles");
+		a.setAuthorityPrefix("");
+		JwtAuthenticationConverter c = new JwtAuthenticationConverter();
+		c.setJwtGrantedAuthoritiesConverter(a);
+		return c;
+	}
+
+	@Bean
+	public SecurityFilterChain filterChain(
+		HttpSecurity http,
+		JwtAuthenticationConverter conv
+	) throws Exception {
+		http
+			.csrf(c -> c.disable())
+			.authorizeHttpRequests(auth ->
+				auth
+					.requestMatchers(HttpMethod.GET, "/api/v1/users/public")
+					.permitAll()
+					.requestMatchers("/actuator/health", "/actuator/health/**")
+					.permitAll()
+					.requestMatchers(HttpMethod.OPTIONS, "/**")
+					.permitAll()
+					.requestMatchers(
+						"/docs/**",
+						"/swagger-ui/**",
+						"/v3/api-docs/**",
+						"/h2-console/**",
+						"/error"
+					)
+					.permitAll()
+					// Perfiles: cualquier sesión válida puede leerlos (nombres e integrantes de equipos)
+					.requestMatchers(HttpMethod.GET, "/api/v1/users/**", "/api/v2/users/**")
+					.authenticated()
+					// Editar perfil: ADMIN cualquiera; el resto solo el propio (lo valida el controlador)
+					.requestMatchers(HttpMethod.PUT, "/api/v1/users/*")
+					.hasAnyRole("ADMIN", "ORGANIZADOR", "JUGADOR")
+					// Crear y eliminar perfiles: solo ADMIN (auth-service usa un token de servicio ADMIN)
+					.requestMatchers("/api/v1/users/**", "/api/v2/users/**")
+					.hasRole("ADMIN")
+					.anyRequest()
+					.authenticated()
+			)
+			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(conv)))
+			.headers(h -> h.frameOptions(f -> f.disable()));
+		return http.build();
+	}
 }

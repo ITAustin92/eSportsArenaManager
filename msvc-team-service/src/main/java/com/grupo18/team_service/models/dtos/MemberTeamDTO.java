@@ -11,7 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class MemberTeamDTO {
 
-    private Long miembroId;
-    private Long usuarioId;
-    private String rolDentroEquipo;
+	private Long miembroId;
+	private Long usuarioId;
+	private String rolDentroEquipo;
 }

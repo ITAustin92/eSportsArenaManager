@@ -11,8 +11,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class GameDTO {
 
-    private Long id;
-    private String name;
-    private String estado;
+	private Long id;
 
+	@com.fasterxml.jackson.annotation.JsonAlias("nombre")
+	private String name;
+
+	private String estado;
 }

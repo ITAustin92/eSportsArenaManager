@@ -11,12 +11,11 @@ import lombok.ToString;
 @NoArgsConstructor
 public class RankingDTO {
 
-    private Long rankingId;
-    private Long tournamentId;
-    private Long teamId;
-    private Integer points;
-    private Integer matchesPlayed;
-    private Integer wins;
-    private Integer losses;
-
+	private Long rankingId;
+	private Long tournamentId;
+	private Long teamId;
+	private Integer points;
+	private Integer matchesPlayed;
+	private Integer wins;
+	private Integer losses;
 }

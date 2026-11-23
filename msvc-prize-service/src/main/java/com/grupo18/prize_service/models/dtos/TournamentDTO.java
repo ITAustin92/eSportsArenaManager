@@ -13,8 +13,11 @@ import lombok.ToString;
 @AllArgsConstructor
 public class TournamentDTO {
 
-    private Long tournamentId;
-    private String name;
-    private String state;
+	private Long tournamentId;
 
+	@com.fasterxml.jackson.annotation.JsonAlias("nombre")
+	private String name;
+
+	@com.fasterxml.jackson.annotation.JsonAlias("estado")
+	private String state;
 }

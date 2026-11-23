@@ -11,11 +11,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ResultDTO {
 
-    private Long resultId;
-    private Long matchId;
-    private Long winnerTeamId;
-    private Integer homeScore;
-    private Integer awayScore;
-    private String status;
-
+	private Long resultId;
+	private Long matchId;
+	private Long winnerTeamId;
+	private Integer homeScore;
+	private Integer awayScore;
+	private String status;
 }

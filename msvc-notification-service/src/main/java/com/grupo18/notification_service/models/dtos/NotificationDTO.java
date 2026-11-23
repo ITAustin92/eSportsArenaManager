@@ -13,14 +13,13 @@ import lombok.ToString;
 @AllArgsConstructor
 public class NotificationDTO {
 
-    private Long notificationId;
-    private Long userId;
-    private Long teamId;
-    private Long tournamentId;
+	private Long notificationId;
+	private Long userId;
+	private Long teamId;
+	private Long tournamentId;
 
-    private String type;
-    private String subject;
-    private String message;
-    private String status;
-
+	private String type;
+	private String subject;
+	private String message;
+	private String status;
 }

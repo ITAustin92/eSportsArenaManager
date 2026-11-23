@@ -5,10 +5,11 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-@FeignClient(name = "msvc-ranking-service", url = "http://localhost:8007/api/v1/rankings")
+@FeignClient(
+	name = "msvc-ranking-service",
+	url = "${servicios.ranking-url:http://localhost:8007}/api/v1/rankings"
+)
 public interface RankingClient {
-
-    @PostMapping("/update")
-    void updateRanking(@RequestBody MatchResultUpdateDTO updateDTO);
+	@PostMapping("/update")
+	void updateRanking(@RequestBody MatchResultUpdateDTO updateDTO);
 }

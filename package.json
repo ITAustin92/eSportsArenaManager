@@ -1,0 +1,12 @@
+{
+	"name": "esports-arena-manager-backend-tooling",
+	"private": true,
+	"scripts": {
+		"format": "prettier --write \"**/*.java\" \"**/*.yml\" *.json",
+		"format:check": "prettier --check \"**/*.java\" \"**/*.yml\" *.json"
+	},
+	"devDependencies": {
+		"prettier": "3.9.10",
+		"prettier-plugin-java": "2.12.0"
+	}
+}

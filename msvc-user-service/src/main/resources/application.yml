@@ -1,37 +1,55 @@
 eureka:
-    client:
-        service-url:
-            defaultZone: http://localhost:8761/eureka/
-    instance:
-        prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
 jwt:
-    secret: clave-secreta-super-segura-para-jwt-esports-arena-manager-grupo18-2026
+  secret: ${JWT_SECRETO:clave-secreta-super-segura-para-jwt-esports-arena-manager-grupo18-2026}
 server:
-    port: 8000
+  port: ${PORT:8000}
 spring:
-    application:
-        name: msvc-user-service
-    datasource:
-        driver-class-name: org.h2.Driver
-        password: sa
-        url: jdbc:h2:file:./data/msvc-user-service
-        username: sa
-    h2:
-        console:
-            enabled: true
-            path: /h2-console
-    jpa:
-        database-platform: org.hibernate.dialect.H2Dialect
-        defer-datasource-initialization: true
-        hibernate:
-            ddl-auto: create-drop
-        show-sql: true
-    sql:
-        init:
-            mode: always
+  application:
+    name: msvc-user-service
+  datasource:
+    driver-class-name: org.h2.Driver
+    password: sa
+    url: jdbc:h2:file:./data/msvc-user-service
+    username: sa
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  sql:
+    init:
+      mode: always
 springdoc:
-    api-docs:
-        enabled: true
-    swagger-ui:
-        enabled: true
-        path: /docs/swagger-ui.html
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /docs/swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+---
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 10000

@@ -11,16 +11,15 @@ import lombok.ToString;
 @NoArgsConstructor
 public class SanctionDTO {
 
-    private Long sanctionId;
-    private Long tournamentId;
-    private Long teamId;
-    private Long matchId;
-    private Long userId;
+	private Long sanctionId;
+	private Long tournamentId;
+	private Long teamId;
+	private Long matchId;
+	private Long userId;
 
-    private String type;
-    private String reason;
-    private Integer matchesSuspended;
-    private Double fineAmount;
-    private String status;
-
+	private String type;
+	private String reason;
+	private Integer matchesSuspended;
+	private Double fineAmount;
+	private String status;
 }

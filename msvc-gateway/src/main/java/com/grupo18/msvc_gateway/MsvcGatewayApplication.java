@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 // Al tener el cliente Eureka en el classpath, también se registra y puede usar lb://.
 @SpringBootApplication
 public class MsvcGatewayApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(MsvcGatewayApplication.class, args);
-    }
+
+	public static void main(String[] args) {
+		SpringApplication.run(MsvcGatewayApplication.class, args);
+	}
 }

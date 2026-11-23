@@ -1,0 +1,341 @@
+# Demostración local: H2 y datos ficticios. Para persistencia usar el perfil prod.
+x-entorno: &entorno
+  EUREKA_URL: http://msvc-eureka:8761/eureka/
+  JWT_SECRETO: ${JWT_SECRETO:?Define JWT_SECRETO en backend/.env}
+  USER_SERVICE_URL: http://msvc-user-service:8000
+
+services:
+  msvc-eureka:
+    build:
+      context: .
+      args:
+        MODULO: msvc-eureka
+    ports:
+      - '8761:8761'
+  msvc-user-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-user-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8000
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8000/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-game-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-game-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8001
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8001/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-team-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-team-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8002
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8002/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-tournament-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-tournament-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8003
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8003/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-registration-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-registration-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8004
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8004/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-match-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-match-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8005
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8005/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-result-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-result-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8006
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8006/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-ranking-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-ranking-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8007
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8007/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-sanction-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-sanction-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8008
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8008/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-prize-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-prize-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8009
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8009/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-notification-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-notification-service
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8010
+      SERVICIOS_USER_URL: http://msvc-user-service:8000
+      SERVICIOS_GAME_URL: http://msvc-game-service:8001
+      SERVICIOS_TEAM_URL: http://msvc-team-service:8002
+      SERVICIOS_TOURNAMENT_URL: http://msvc-tournament-service:8003
+      SERVICIOS_REGISTRATION_URL: http://msvc-registration-service:8004
+      SERVICIOS_MATCH_URL: http://msvc-match-service:8005
+      SERVICIOS_RESULT_URL: http://msvc-result-service:8006
+      SERVICIOS_RANKING_URL: http://msvc-ranking-service:8007
+      SERVICIOS_SANCTION_URL: http://msvc-sanction-service:8008
+      SERVICIOS_PRIZE_URL: http://msvc-prize-service:8009
+      SERVICIOS_NOTIFICATION_URL: http://msvc-notification-service:8010
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8010/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-auth-service:
+    build:
+      context: .
+      args:
+        MODULO: msvc-auth-service
+    depends_on:
+      msvc-user-service:
+        condition: service_healthy
+    environment:
+      <<: *entorno
+      PORT: 8099
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8099/actuator/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+  msvc-gateway:
+    build:
+      context: .
+      args:
+        MODULO: msvc-gateway
+    depends_on:
+      - msvc-eureka
+    environment:
+      <<: *entorno
+      PORT: 8080
+      CORS_ORIGENES: ${CORS_ORIGENES:-http://localhost:5173,http://127.0.0.1:5173}
+    ports:
+      - '8080:8080'

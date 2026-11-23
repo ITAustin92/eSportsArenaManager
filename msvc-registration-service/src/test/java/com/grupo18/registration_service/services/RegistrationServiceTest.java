@@ -1,5 +1,8 @@
 package com.grupo18.registration_service.services;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.grupo18.registration_service.clients.TeamClient;
 import com.grupo18.registration_service.clients.TournamentClient;
 import com.grupo18.registration_service.exceptions.RegistrationException;
@@ -7,6 +10,8 @@ import com.grupo18.registration_service.models.Registration;
 import com.grupo18.registration_service.models.dtos.TeamDTO;
 import com.grupo18.registration_service.models.dtos.TournamentDTO;
 import com.grupo18.registration_service.repositories.RegistrationRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,196 +20,207 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class RegistrationServiceTest {
 
-    @Mock private RegistrationRepository registrationRepository;
-    @Mock private TeamClient teamClient;
-    @Mock private TournamentClient tournamentClient;
+	@Mock
+	private RegistrationRepository registrationRepository;
 
-    @InjectMocks private RegistrationServiceImpl registrationService;
+	@Mock
+	private TeamClient teamClient;
 
-    private Registration registrationPrueba;
-    private TeamDTO teamPrueba;
-    private TournamentDTO tournamentPrueba;
+	@Mock
+	private TournamentClient tournamentClient;
 
-    @BeforeEach
-    public void setUp() {
-        registrationPrueba = new Registration();
-        registrationPrueba.setRegistrationId(1L);
-        registrationPrueba.setTeamId(100L);
-        registrationPrueba.setTournamentId(10L);
+	@InjectMocks
+	private RegistrationServiceImpl registrationService;
 
-        teamPrueba = new TeamDTO();
-        teamPrueba.setId(100L);
-        teamPrueba.setEstado("ACTIVO");
+	private Registration registrationPrueba;
+	private TeamDTO teamPrueba;
+	private TournamentDTO tournamentPrueba;
 
-        tournamentPrueba = new TournamentDTO();
-        tournamentPrueba.setTournamentId(10L);
-        tournamentPrueba.setState("UPCOMING");
-    }
+	@BeforeEach
+	public void setUp() {
+		registrationPrueba = new Registration();
+		registrationPrueba.setRegistrationId(1L);
+		registrationPrueba.setTeamId(100L);
+		registrationPrueba.setTournamentId(10L);
 
-    @Test
-    @DisplayName("Debe crear una inscripción válida")
-    public void shouldSaveRegistration() {
-        when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(Optional.empty());
-        when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
-        when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
-        when(registrationRepository.save(any(Registration.class))).thenAnswer(inv -> inv.getArgument(0));
+		teamPrueba = new TeamDTO();
+		teamPrueba.setId(100L);
+		teamPrueba.setEstado("ACTIVO");
 
-        Registration result = registrationService.save(registrationPrueba);
+		tournamentPrueba = new TournamentDTO();
+		tournamentPrueba.setTournamentId(10L);
+		tournamentPrueba.setState("UPCOMING");
+	}
 
-        assertThat(result.getStatus()).isEqualTo("PENDING");
-        assertThat(result.getRegistrationDate()).isNotNull();
-        verify(registrationRepository, times(1)).save(registrationPrueba);
-    }
+	@Test
+	@DisplayName("Debe crear una inscripción válida")
+	public void shouldSaveRegistration() {
+		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
+			Optional.empty()
+		);
+		when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
+		when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
+		when(registrationRepository.save(any(Registration.class))).thenAnswer(inv ->
+			inv.getArgument(0)
+		);
 
-    @Test
-    @DisplayName("Debe lanzar excepción si el equipo ya está inscrito en el torneo")
-    public void shouldThrowWhenAlreadyRegistered() {
-        when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(Optional.of(registrationPrueba));
+		Registration result = registrationService.save(registrationPrueba);
 
-        assertThatThrownBy(() -> registrationService.save(registrationPrueba))
-                .isInstanceOf(RegistrationException.class)
-                .hasMessage("El equipo ya se encuentra inscrito en este torneo");
-        verify(registrationRepository, never()).save(any(Registration.class));
-    }
+		assertThat(result.getStatus()).isEqualTo("PENDING");
+		assertThat(result.getRegistrationDate()).isNotNull();
+		verify(registrationRepository, times(1)).save(registrationPrueba);
+	}
 
-    @Test
-    @DisplayName("Debe lanzar excepción si el equipo no está activo")
-    public void shouldThrowWhenTeamNotActive() {
-        teamPrueba.setEstado("INACTIVO");
-        when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(Optional.empty());
-        when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
+	@Test
+	@DisplayName("Debe lanzar excepción si el equipo ya está inscrito en el torneo")
+	public void shouldThrowWhenAlreadyRegistered() {
+		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
+			Optional.of(registrationPrueba)
+		);
 
-        assertThatThrownBy(() -> registrationService.save(registrationPrueba))
-                .isInstanceOf(RegistrationException.class)
-                .hasMessageContaining("El equipo no existe o no está activo");
-        verify(registrationRepository, never()).save(any(Registration.class));
-    }
+		assertThatThrownBy(() -> registrationService.save(registrationPrueba))
+			.isInstanceOf(RegistrationException.class)
+			.hasMessage("El equipo ya se encuentra inscrito en este torneo");
+		verify(registrationRepository, never()).save(any(Registration.class));
+	}
 
-    @Test
-    @DisplayName("Debe lanzar excepción si el torneo no admite inscripciones")
-    public void shouldThrowWhenTournamentNotUpcoming() {
-        tournamentPrueba.setState("FINISHED");
-        when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(Optional.empty());
-        when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
-        when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
+	@Test
+	@DisplayName("Debe lanzar excepción si el equipo no está activo")
+	public void shouldThrowWhenTeamNotActive() {
+		teamPrueba.setEstado("INACTIVO");
+		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
+			Optional.empty()
+		);
+		when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
 
-        assertThatThrownBy(() -> registrationService.save(registrationPrueba))
-                .isInstanceOf(RegistrationException.class)
-                .hasMessageContaining("El torneo no existe o no admite nuevas inscripciones");
-        verify(registrationRepository, never()).save(any(Registration.class));
-    }
+		assertThatThrownBy(() -> registrationService.save(registrationPrueba))
+			.isInstanceOf(RegistrationException.class)
+			.hasMessageContaining("El equipo no existe o no está activo");
+		verify(registrationRepository, never()).save(any(Registration.class));
+	}
 
-    @Test
-    @DisplayName("Debe actualizar el estado de una inscripción")
-    public void shouldUpdateStatus() {
-        when(registrationRepository.findById(1L)).thenReturn(Optional.of(registrationPrueba));
-        when(registrationRepository.save(any(Registration.class))).thenReturn(registrationPrueba);
+	@Test
+	@DisplayName("Debe lanzar excepción si el torneo no admite inscripciones")
+	public void shouldThrowWhenTournamentNotUpcoming() {
+		tournamentPrueba.setState("FINISHED");
+		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
+			Optional.empty()
+		);
+		when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
+		when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
 
-        Registration result = registrationService.updateStatus(1L, "ACCEPTED");
+		assertThatThrownBy(() -> registrationService.save(registrationPrueba))
+			.isInstanceOf(RegistrationException.class)
+			.hasMessageContaining("El torneo no existe o no admite nuevas inscripciones");
+		verify(registrationRepository, never()).save(any(Registration.class));
+	}
 
-        assertThat(result.getStatus()).isEqualTo("ACCEPTED");
-        verify(registrationRepository, times(1)).save(registrationPrueba);
-    }
+	@Test
+	@DisplayName("Debe actualizar el estado de una inscripción")
+	public void shouldUpdateStatus() {
+		when(registrationRepository.findById(1L)).thenReturn(Optional.of(registrationPrueba));
+		when(registrationRepository.save(any(Registration.class))).thenReturn(registrationPrueba);
 
-    @Test
-    @DisplayName("Debe lanzar excepción al actualizar inscripción inexistente")
-    public void shouldThrowWhenUpdateNotFound() {
-        when(registrationRepository.findById(9999L)).thenReturn(Optional.empty());
+		Registration result = registrationService.updateStatus(1L, "ACCEPTED");
 
-        assertThatThrownBy(() -> registrationService.updateStatus(9999L, "ACCEPTED"))
-                .isInstanceOf(RegistrationException.class)
-                .hasMessage("Inscripción no encontrada");
-    }
+		assertThat(result.getStatus()).isEqualTo("ACCEPTED");
+		verify(registrationRepository, times(1)).save(registrationPrueba);
+	}
 
-    @Test
-    @DisplayName("Debe cancelar una inscripción")
-    public void shouldCancelRegistration() {
-        when(registrationRepository.findById(1L)).thenReturn(Optional.of(registrationPrueba));
-        when(registrationRepository.save(any(Registration.class))).thenReturn(registrationPrueba);
+	@Test
+	@DisplayName("Debe lanzar excepción al actualizar inscripción inexistente")
+	public void shouldThrowWhenUpdateNotFound() {
+		when(registrationRepository.findById(9999L)).thenReturn(Optional.empty());
 
-        registrationService.cancelById(1L);
+		assertThatThrownBy(() -> registrationService.updateStatus(9999L, "ACCEPTED"))
+			.isInstanceOf(RegistrationException.class)
+			.hasMessage("Inscripción no encontrada");
+	}
 
-        assertThat(registrationPrueba.getStatus()).isEqualTo("CANCELLED");
-        verify(registrationRepository, times(1)).save(registrationPrueba);
-    }
+	@Test
+	@DisplayName("Debe cancelar una inscripción")
+	public void shouldCancelRegistration() {
+		when(registrationRepository.findById(1L)).thenReturn(Optional.of(registrationPrueba));
+		when(registrationRepository.save(any(Registration.class))).thenReturn(registrationPrueba);
 
-    @Test
-    @DisplayName("Debe listar todas las inscripciones")
-    public void shouldListAllRegistrations() {
-        // Given
-        when(registrationRepository.findAll()).thenReturn(List.of(registrationPrueba));
+		registrationService.cancelById(1L);
 
-        // When
-        List<Registration> result = registrationService.findAll();
+		assertThat(registrationPrueba.getStatus()).isEqualTo("CANCELLED");
+		verify(registrationRepository, times(1)).save(registrationPrueba);
+	}
 
-        // Then
-        assertThat(result).hasSize(1);
-        verify(registrationRepository, times(1)).findAll();
-    }
+	@Test
+	@DisplayName("Debe listar todas las inscripciones")
+	public void shouldListAllRegistrations() {
+		// Given
+		when(registrationRepository.findAll()).thenReturn(List.of(registrationPrueba));
 
-    @Test
-    @DisplayName("Debe buscar inscripciones por equipo")
-    public void shouldFindByTeamId() {
-        // Given
-        when(registrationRepository.findByTeamId(100L)).thenReturn(List.of(registrationPrueba));
+		// When
+		List<Registration> result = registrationService.findAll();
 
-        // When
-        List<Registration> result = registrationService.findByTeamId(100L);
+		// Then
+		assertThat(result).hasSize(1);
+		verify(registrationRepository, times(1)).findAll();
+	}
 
-        // Then
-        assertThat(result).hasSize(1);
-        verify(registrationRepository, times(1)).findByTeamId(100L);
-    }
+	@Test
+	@DisplayName("Debe buscar inscripciones por equipo")
+	public void shouldFindByTeamId() {
+		// Given
+		when(registrationRepository.findByTeamId(100L)).thenReturn(List.of(registrationPrueba));
 
-    @Test
-    @DisplayName("Debe buscar inscripciones por torneo")
-    public void shouldFindByTournamentId() {
-        // Given
-        when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(registrationPrueba));
+		// When
+		List<Registration> result = registrationService.findByTeamId(100L);
 
-        // When
-        List<Registration> result = registrationService.findByTournamentId(10L);
+		// Then
+		assertThat(result).hasSize(1);
+		verify(registrationRepository, times(1)).findByTeamId(100L);
+	}
 
-        // Then
-        assertThat(result).hasSize(1);
-        verify(registrationRepository, times(1)).findByTournamentId(10L);
-    }
+	@Test
+	@DisplayName("Debe buscar inscripciones por torneo")
+	public void shouldFindByTournamentId() {
+		// Given
+		when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(registrationPrueba));
 
-    @Test
-    @DisplayName("Debe verificar si un equipo está inscrito en un torneo")
-    public void shouldCheckIfTeamIsRegistered() {
-        // Given
-        when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L))
-                .thenReturn(Optional.of(registrationPrueba));
+		// When
+		List<Registration> result = registrationService.findByTournamentId(10L);
 
-        // When
-        boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 10L);
+		// Then
+		assertThat(result).hasSize(1);
+		verify(registrationRepository, times(1)).findByTournamentId(10L);
+	}
 
-        // Then
-        assertThat(result).isTrue();
-    }
+	@Test
+	@DisplayName("Debe verificar si un equipo está inscrito en un torneo")
+	public void shouldCheckIfTeamIsRegistered() {
+		// Given
+		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
+			Optional.of(registrationPrueba)
+		);
 
-    @Test
-    @DisplayName("Debe retornar false si el equipo no está inscrito")
-    public void shouldReturnFalseWhenNotRegistered() {
-        // Given
-        when(registrationRepository.findByTeamIdAndTournamentId(100L, 99L))
-                .thenReturn(Optional.empty());
+		// When
+		boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 10L);
 
-        // When
-        boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 99L);
+		// Then
+		assertThat(result).isTrue();
+	}
 
-        // Then
-        assertThat(result).isFalse();
-    }
+	@Test
+	@DisplayName("Debe retornar false si el equipo no está inscrito")
+	public void shouldReturnFalseWhenNotRegistered() {
+		// Given
+		when(registrationRepository.findByTeamIdAndTournamentId(100L, 99L)).thenReturn(
+			Optional.empty()
+		);
 
+		// When
+		boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 99L);
+
+		// Then
+		assertThat(result).isFalse();
+	}
 }

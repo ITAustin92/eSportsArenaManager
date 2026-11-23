@@ -11,10 +11,9 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDTO {
 
-    private Long usuarioId;
-    private String nombre;
-    private String nickname;
-    private String correo;
-    private String rol;
-
+	private Long usuarioId;
+	private String nombre;
+	private String nickname;
+	private String correo;
+	private String rol;
 }

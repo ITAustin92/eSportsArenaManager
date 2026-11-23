@@ -11,5 +11,4 @@ public class RankingServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RankingServiceApplication.class, args);
 	}
-
 }

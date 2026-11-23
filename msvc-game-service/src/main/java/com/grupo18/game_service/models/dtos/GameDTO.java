@@ -11,11 +11,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class GameDTO {
 
-    private Long juegoId;
-    private String nombre;
-    private String genero;
-    private String modalidad;
-    private Integer jugadoresPorEquipo;
-    private String estado;
-
+	private Long juegoId;
+	private String nombre;
+	private String genero;
+	private String modalidad;
+	private Integer jugadoresPorEquipo;
+	private String estado;
 }

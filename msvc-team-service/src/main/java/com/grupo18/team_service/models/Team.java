@@ -1,16 +1,14 @@
 package com.grupo18.team_service.models;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "equipos")
@@ -20,33 +18,31 @@ import java.util.List;
 @ToString
 public class Team {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "equipo_id")
-    private Long equipoId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "equipo_id")
+	private Long equipoId;
 
-    @NotBlank(message = "El campo nombre no puede ser vacio")
-    @Column(nullable = false, unique = true)
-    private String nombre;
+	@NotBlank(message = "El campo nombre no puede ser vacio")
+	@Column(nullable = false, unique = true)
+	private String nombre;
 
+	@NotNull(message = "El campo capitan no puede ser nulo")
+	@Column(name = "capitan_id", nullable = false)
+	private Long capitanId;
 
-    @NotNull(message = "El campo capitan no puede ser nulo")
-    @Column(name = "capitan_id", nullable = false)
-    private Long capitanId;
+	@NotNull(message = "El campo juego principal no puede ser nulo")
+	@Column(name = "juego_principal_id", nullable = false)
+	private Long juegoPrincipalId;
 
-    @NotNull(message = "El campo juego principal no puede ser nulo")
-    @Column(name = "juego_principal_id", nullable = false)
-    private Long juegoPrincipalId;
+	@NotBlank(message = "El campo estado no puede ser vacio")
+	@Column(nullable = false)
+	private String estado;
 
-    @NotBlank(message = "El campo estado no puede ser vacio")
-    @Column(nullable = false)
-    private String estado;
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "equipo_id")
+	private List<MemberTeam> miembros = new ArrayList<>();
 
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "equipo_id")
-    private List<MemberTeam> miembros = new ArrayList<>();
-
-    @Embedded
-    private Audit audit = new Audit();
+	@Embedded
+	private Audit audit = new Audit();
 }

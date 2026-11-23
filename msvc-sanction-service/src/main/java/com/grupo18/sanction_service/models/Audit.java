@@ -4,12 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.time.LocalDateTime;
 
 @Embeddable
 @Getter
@@ -18,17 +17,19 @@ import java.time.LocalDateTime;
 @ToString
 public class Audit {
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();}
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = LocalDateTime.now();
+	}
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();}
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = LocalDateTime.now();
+	}
 }

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RankingService {
-    void processMatchResult(MatchResultUpdateDTO updateDTO);
+	void processMatchResult(MatchResultUpdateDTO updateDTO);
 
-    List<Ranking> getTournamentLeaderboard(Long tournamentId);
+	List<Ranking> getTournamentLeaderboard(Long tournamentId);
 
-    Optional<Ranking> findByTournamentAndTeam(Long tournamentId, Long teamId);
+	Optional<Ranking> findByTournamentAndTeam(Long tournamentId, Long teamId);
 }

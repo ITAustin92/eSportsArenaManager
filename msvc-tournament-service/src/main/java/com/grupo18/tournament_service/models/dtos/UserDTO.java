@@ -11,9 +11,14 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDTO {
 
-    private Long id;
-    private String nickname;
-    private String state;
-    private String role;
+	@com.fasterxml.jackson.annotation.JsonAlias("usuarioId")
+	private Long id;
 
+	private String nickname;
+
+	@com.fasterxml.jackson.annotation.JsonAlias("estado")
+	private String state;
+
+	@com.fasterxml.jackson.annotation.JsonAlias("rol")
+	private String role;
 }

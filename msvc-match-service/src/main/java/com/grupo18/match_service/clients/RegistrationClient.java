@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 // Apuntamos al puerto 8004 donde vive el registration-service
-@FeignClient(name = "msvc-registration-service", url = "http://localhost:8004/api/v1/registrations")
+@FeignClient(
+	name = "msvc-registration-service",
+	url = "${servicios.registration-url:http://localhost:8004}/api/v1/registrations"
+)
 public interface RegistrationClient {
-
-    @GetMapping("/exists")
-    boolean isTeamRegisteredInTournament(@RequestParam Long teamId, @RequestParam Long tournamentId);
+	@GetMapping("/exists")
+	boolean isTeamRegisteredInTournament(@RequestParam Long teamId, @RequestParam Long tournamentId);
 }

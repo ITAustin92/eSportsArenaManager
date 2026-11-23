@@ -11,5 +11,4 @@ public class SanctionServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SanctionServiceApplication.class, args);
 	}
-
 }

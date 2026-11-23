@@ -37,3 +37,7 @@ VALUES ('Javier Diaz', 'jdiaz_var', 'javier.diaz@torneo.com', 'REFEREE', 'SANCIO
 -- 10. Jugador Activo
 INSERT INTO usuario (nombre, nickname, correo, rol, estado)
 VALUES ('Camila Vargas', 'cvargas_11', 'camila.vargas@torneo.com', 'PLAYER', 'ACTIVO');
+
+-- 11. Organizador de torneos (cuenta organizador1 en msvc-auth-service)
+INSERT INTO usuario (nombre, nickname, correo, rol, estado)
+VALUES ('Roberto Fuentes', 'rfuentes_org', 'roberto.fuentes@torneo.com', 'ORGANIZER', 'ACTIVO');

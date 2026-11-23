@@ -1,0 +1,19 @@
+# Perfil MySQL. Activar con:  -Dspring-boot.run.profiles=mysql  (o en IntelliJ: Active profiles = mysql)
+# Requiere un MySQL local (XAMPP / Laragon / MySQL Server) en el puerto 3306.
+# La base "esports_user" se crea sola (createDatabaseIfNotExist). Usuario/clave por variables de entorno.
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/esports_user?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
+  sql:
+    init:
+      mode: never
+  h2:
+    console:
+      enabled: false

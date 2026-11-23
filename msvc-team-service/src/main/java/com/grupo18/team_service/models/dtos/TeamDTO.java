@@ -1,12 +1,11 @@
 package com.grupo18.team_service.models.dtos;
 
 import com.grupo18.team_service.models.MemberTeam;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -14,12 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 public class TeamDTO {
 
-    private Long equipoId;
-    private String nombre;
-    private Long capitanId;
-    private Long juegoPrincipalId;
-    private String estado;
+	private Long equipoId;
+	private String nombre;
+	private Long capitanId;
+	private Long juegoPrincipalId;
+	private String estado;
 
-
-    private List<MemberTeam> miembros;
+	private List<MemberTeam> miembros;
 }

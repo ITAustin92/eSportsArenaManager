@@ -13,13 +13,12 @@ import lombok.ToString;
 @AllArgsConstructor
 public class PrizeDTO {
 
-    private Long prizeId;
-    private Long tournamentId;
-    private Long teamId;
+	private Long prizeId;
+	private Long tournamentId;
+	private Long teamId;
 
-    private String description;
-    private String type;
-    private Double amount;
-    private String status;
-
+	private String description;
+	private String type;
+	private Double amount;
+	private String status;
 }

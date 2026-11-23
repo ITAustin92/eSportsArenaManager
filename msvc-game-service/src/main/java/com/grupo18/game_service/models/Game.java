@@ -17,33 +17,34 @@ import lombok.ToString;
 @ToString
 public class Game {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "juego_id")
-    private Long juegoId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "juego_id")
+	private Long juegoId;
 
-    @NotBlank(message = "El campo nombre no puede ser vacio")
-    @Column(nullable = false, unique = true)
-    private String nombre;
+	@NotBlank(message = "El campo nombre no puede ser vacio")
+	@Column(nullable = false, unique = true)
+	private String nombre;
 
-    @NotBlank(message = "El campo genero no puede ser vacio")
-    @Column(nullable = false)
-    private String genero;
+	@NotBlank(message = "El campo genero no puede ser vacio")
+	@Column(nullable = false)
+	private String genero;
 
-    @NotBlank(message = "El campo modalidad no puede ser vacio")
-    @Column(nullable = false)
-    private String modalidad;
+	@NotBlank(message = "El campo modalidad no puede ser vacio")
+	@Column(nullable = false)
+	private String modalidad;
 
-    @NotNull(message = "El campo jugadores por equipo no puede ser nulo")
-    @Positive(message = "La cantidad de jugadores por equipo debe ser un numero positivo") // Regla de negocio: Positivo
-    @Column(name = "jugadores_por_equipo", nullable = false)
-    private Integer jugadoresPorEquipo;
+	@NotNull(message = "El campo jugadores por equipo no puede ser nulo")
+	@Positive(message = "La cantidad de jugadores por equipo debe ser un numero positivo") // Regla de negocio: Positivo
+	@Column(name = "jugadores_por_equipo", nullable = false)
+	private Integer jugadoresPorEquipo;
 
-    @NotBlank(message = "El campo estado no puede ser vacio")
-    @Column(nullable = false)
-    private String estado;
+	@NotBlank(message = "El campo estado no puede ser vacio")
+	@Column(nullable = false)
+	private String estado;
 
-    @Embedded
-    private Audit audit = new Audit();
-    
+	private String imagen;
+
+	@Embedded
+	private Audit audit = new Audit();
 }

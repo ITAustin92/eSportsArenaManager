@@ -1,11 +1,10 @@
 package com.grupo18.tournament_service.models.dtos;
 
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -13,11 +12,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class TournamentDTO {
 
-    private Long tournamentId;
-    private String name;
-    private Long gameId;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String state;
-    private Long organizerId;
+	private Long tournamentId;
+
+	@com.fasterxml.jackson.annotation.JsonAlias("nombre")
+	private String name;
+
+	private Long gameId;
+	private LocalDate startDate;
+	private LocalDate endDate;
+
+	@com.fasterxml.jackson.annotation.JsonAlias("estado")
+	private String state;
+
+	private Long organizerId;
 }
