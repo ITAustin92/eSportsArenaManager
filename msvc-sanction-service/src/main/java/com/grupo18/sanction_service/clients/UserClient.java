@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
+	contextId = "sanction-UserClient",
 	name = "msvc-user-service",
 	url = "${servicios.user-url:http://localhost:8000}/api/v1/users"
 )

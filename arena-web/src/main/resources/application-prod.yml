@@ -1,0 +1,28 @@
+server:
+  address: 0.0.0.0
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USUARIO}
+    password: ${DB_CLAVE}
+    hikari:
+      connection-timeout: 5000
+  jpa:
+    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: arena_ep3
+        hbm2ddl:
+          create_namespaces: true
+  sql:
+    init:
+      mode: never
+app:
+  cors:
+    origenes: ${CORS_ORIGENES}
+  demo:
+    enabled: false
+jwt:
+  secret: ${JWT_SECRETO}

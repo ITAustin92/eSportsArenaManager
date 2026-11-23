@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
+	contextId = "registration-TeamClient",
 	name = "msvc-team-service",
 	url = "${servicios.team-url:http://localhost:8002}/api/v1/teams"
 )

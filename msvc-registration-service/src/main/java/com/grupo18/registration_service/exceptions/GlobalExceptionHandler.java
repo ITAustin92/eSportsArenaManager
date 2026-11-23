@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.grupo18.registration_service")
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(RegistrationException.class)

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 // Conexión con el servicio de torneos en el puerto 8003
 @FeignClient(
+	contextId = "ranking-TournamentClient",
 	name = "tournament-service",
 	url = "${servicios.tournament-url:http://localhost:8003}/api/v1/tournaments"
 )

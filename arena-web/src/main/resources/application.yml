@@ -1,0 +1,74 @@
+server:
+  address: 127.0.0.1
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  tomcat:
+    threads:
+      min-spare: 2
+      max: 32
+spring:
+  application:
+    name: arena-web
+  datasource:
+    url: jdbc:h2:mem:arena
+    username: sa
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 1
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create-drop
+  sql:
+    init:
+      mode: always
+      data-locations:
+        - classpath:demo/game/data.sql
+        - classpath:demo/match/data.sql
+        - classpath:demo/notification/data.sql
+        - classpath:demo/prize/data.sql
+        - classpath:demo/ranking/data.sql
+        - classpath:demo/registration/data.sql
+        - classpath:demo/result/data.sql
+        - classpath:demo/sanction/data.sql
+        - classpath:demo/team/data.sql
+        - classpath:demo/tournament/data.sql
+        - classpath:demo/user/data.sql
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 10000
+app:
+  internal-url: http://127.0.0.1:${server.port}
+  cors:
+    origenes: ${CORS_ORIGENES:http://localhost:5173,http://127.0.0.1:5173}
+  demo:
+    enabled: true
+jwt:
+  secret: ${JWT_SECRETO:arena-demo-local-fuera-de-produccion-2026}
+  expiration-minutes: 60
+servicios:
+  user-service-url: ${app.internal-url}
+  user-url: ${app.internal-url}
+  game-url: ${app.internal-url}
+  team-url: ${app.internal-url}
+  tournament-url: ${app.internal-url}
+  registration-url: ${app.internal-url}
+  match-url: ${app.internal-url}
+  ranking-url: ${app.internal-url}
+  sanction-url: ${app.internal-url}
+  notification-url: ${app.internal-url}
+springdoc:
+  swagger-ui:
+    path: /docs/swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

@@ -12,7 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 // Todas las respuestas de error tienen la forma {"error": "...", "campos": {...}} para que el frontend
 // muestre un mensaje entendible.
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.grupo18.auth_service")
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)

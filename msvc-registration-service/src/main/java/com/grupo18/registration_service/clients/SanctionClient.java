@@ -5,6 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
+	contextId = "registration-SanctionClient",
 	name = "msvc-sanction-service",
 	url = "${servicios.sanction-url:http://localhost:8008}/api/v1/sanctions"
 )

@@ -5,6 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
+	contextId = "registration-UserClient",
 	name = "msvc-user-service",
 	url = "${servicios.user-url:http://localhost:8000}/api/v1/users"
 )

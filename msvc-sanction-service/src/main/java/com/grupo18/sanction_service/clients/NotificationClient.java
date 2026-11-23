@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
+	contextId = "sanction-NotificationClient",
 	name = "notification-service",
 	url = "${servicios.notification-url:http://localhost:8010}/api/v1/notifications"
 )

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
+	contextId = "result-RankingClient",
 	name = "msvc-ranking-service",
 	url = "${servicios.ranking-url:http://localhost:8007}/api/v1/rankings"
 )

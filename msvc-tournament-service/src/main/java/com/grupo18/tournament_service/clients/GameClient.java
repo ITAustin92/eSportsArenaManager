@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
+	contextId = "tournament-GameClient",
 	name = "msvc-game-service",
 	url = "${servicios.game-url:http://localhost:8001}/api/v1/games"
 )

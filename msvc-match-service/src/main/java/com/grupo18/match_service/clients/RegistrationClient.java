@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 // Apuntamos al puerto 8004 donde vive el registration-service
 @FeignClient(
+	contextId = "match-RegistrationClient",
 	name = "msvc-registration-service",
 	url = "${servicios.registration-url:http://localhost:8004}/api/v1/registrations"
 )

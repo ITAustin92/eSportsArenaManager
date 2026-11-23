@@ -1,6 +1,6 @@
 # Backend de eSports Arena Manager EP3
 
-Proyecto Maven independiente con Java 21 y Spring Boot. El frontend consume únicamente
+Proyecto Maven independiente con Java 21 y Spring Boot. En el modo de módulos separados, el frontend consume únicamente
 el gateway (8080). Eureka utiliza 8761; auth, 8099; los servicios de negocio, 8000–8010.
 
 ## Desarrollo local con datos ficticios
@@ -55,24 +55,39 @@ Para una base existente hacer un respaldo antes de cambiar de versión. El uso d
 con migraciones versionadas. No activar producción sobre datos que se desee conservar
 sin revisar antes el esquema y sus restricciones.
 
-## Despliegue de producción
+## Despliegue de producción en Render Free
 
-1. Publicar cada módulo con el Dockerfile y el argumento `MODULO=msvc-...`.
-2. Definir `SPRING_PROFILES_ACTIVE=prod`, `PORT` y `JWT_SECRETO` en cada servicio.
-3. En los servicios con base, definir la conexión PostgreSQL con TLS.
-4. Configurar las variables `<DOMINIO>_SERVICE_URL` requeridas por cada
-   `application-prod.yml`. En producción Eureka se desactiva; el gateway usa las
-   direcciones fijas del cliente de descubrimiento simple de Spring Cloud.
-5. En auth definir `USER_SERVICE_URL`. Para crear el primer administrador en una base
-   nueva, definir `ADMIN_USERNAME`, `ADMIN_PASSWORD` (mínimo 12 caracteres),
-   `ADMIN_NOMBRE` y `ADMIN_CORREO`, con user-service ya disponible. Tras la creación,
-   retirar esas credenciales de bootstrap. No se recrea una cuenta existente.
-6. En el gateway definir `CORS_ORIGENES` con el origen HTTPS exacto de Vercel, sin `/`
-   final. Cada servicio debe compartir el mismo secreto JWT.
-7. En Vercel configurar `VITE_API_URL` con la URL HTTPS del gateway y volver a compilar.
+El Dockerfile compila por defecto `arena-web`, que ejecuta los módulos de
+negocio y autenticación en un proceso. Conserva los endpoints `/api/v1` y
+`/api/v2` de los módulos y publica una sola interfaz Swagger.
 
-`.env.example` enumera las variables, sin incluir secretos reales. El Compose
-incluido corresponde a demostración local y no sustituye los perfiles de producción.
+1. En Supabase abrir **Connect → Session pooler** y guardar host, usuario
+   completo y contraseña de PostgreSQL.
+2. En Render crear un **Web Service** desde la rama `main` con Docker y el plan
+   **Free**, o aplicar `render.yaml` como Blueprint. Usar el Dockerfile de
+   la raíz y `/actuator/health` como ruta de salud.
+3. Definir `SPRING_PROFILES_ACTIVE=prod`, `DB_URL`, `DB_USUARIO`, `DB_CLAVE`,
+   `JWT_SECRETO` y `CORS_ORIGENES`. Ejemplo de URL JDBC:
+   `jdbc:postgresql://HOST_DEL_POOLER:5432/postgres?sslmode=require`.
+   El perfil crea el esquema `arena_ep3` y conserva los datos. Si ya existen
+   esquemas por módulo, migrar esos datos explícitamente antes de cambiar.
+4. Para crear el administrador inicial, definir `ADMIN_USERNAME`,
+   `ADMIN_PASSWORD` (mínimo 12 caracteres), `ADMIN_CORREO` y, opcionalmente,
+   `ADMIN_NOMBRE`. Tras comprobar el acceso, retirar esas variables.
+   Crear un juego, una cuenta organizadora y un torneo desde el panel de administración.
+5. En Vercel, configurar `VITE_API_URL` con la URL HTTPS del servicio de Render
+   y desplegar la rama del frontend que contiene EP3.
+
+Para probar el ejecutable unificado con H2 en la máquina local:
+
+```sh
+./mvnw -pl arena-web -am package
+java -jar arena-web/target/arena-web-1.0-SNAPSHOT.jar
+```
+
+El backend responde en `http://localhost:8080`, con las cuentas ficticias del
+README. Docker Compose permite ejecutar los módulos en procesos separados
+para el flujo de desarrollo.
 
 ## Contratos y reglas agregadas
 
