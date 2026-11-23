@@ -9,4 +9,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 WORKDIR /app
 COPY --from=build /app/servicio.jar app.jar
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=70"
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --chmod=755 deploy/start.sh /app/start.sh
+ENTRYPOINT ["/app/start.sh"]

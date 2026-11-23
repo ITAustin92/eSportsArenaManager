@@ -1,0 +1,557 @@
+# Preview and review the recurring cost in Render before applying this Blueprint.
+envVarGroups:
+  - name: arena-ep3-runtime
+    envVars:
+      - key: JWT_SECRETO
+        generateValue: true
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE
+        value: "0"
+
+services:
+  - type: pserv
+    name: arena-ep3-user
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-user-service"
+      - key: PORT
+        value: "8000"
+      - key: DB_URL
+        sync: false
+      - key: DB_USUARIO
+        sync: false
+      - key: DB_CLAVE
+        sync: false
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-notification
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-game
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-game-service"
+      - key: PORT
+        value: "8001"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+
+  - type: pserv
+    name: arena-ep3-team
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-team-service"
+      - key: PORT
+        value: "8002"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: GAME_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-game
+          type: pserv
+          property: hostport
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-tournament
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-tournament-service"
+      - key: PORT
+        value: "8003"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: GAME_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-game
+          type: pserv
+          property: hostport
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-registration
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-registration-service"
+      - key: PORT
+        value: "8004"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: TEAM_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-team
+          type: pserv
+          property: hostport
+      - key: TOURNAMENT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-tournament
+          type: pserv
+          property: hostport
+      - key: GAME_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-game
+          type: pserv
+          property: hostport
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+      - key: SANCTION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-sanction
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-match
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-match-service"
+      - key: PORT
+        value: "8005"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-notification
+          type: pserv
+          property: hostport
+      - key: REGISTRATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-registration
+          type: pserv
+          property: hostport
+      - key: TOURNAMENT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-tournament
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-result
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-result-service"
+      - key: PORT
+        value: "8006"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: MATCH_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-match
+          type: pserv
+          property: hostport
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-notification
+          type: pserv
+          property: hostport
+      - key: RANKING_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-ranking
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-ranking
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-ranking-service"
+      - key: PORT
+        value: "8007"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: TOURNAMENT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-tournament
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-sanction
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-sanction-service"
+      - key: PORT
+        value: "8008"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-notification
+          type: pserv
+          property: hostport
+      - key: TEAM_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-team
+          type: pserv
+          property: hostport
+      - key: TOURNAMENT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-tournament
+          type: pserv
+          property: hostport
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-prize
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-prize-service"
+      - key: PORT
+        value: "8009"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-notification
+          type: pserv
+          property: hostport
+      - key: RANKING_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-ranking
+          type: pserv
+          property: hostport
+      - key: TOURNAMENT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-tournament
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-notification
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-notification-service"
+      - key: PORT
+        value: "8010"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+
+  - type: pserv
+    name: arena-ep3-auth
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-auth-service"
+      - key: PORT
+        value: "8099"
+      - key: DB_URL
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_URL
+      - key: DB_USUARIO
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_USUARIO
+      - key: DB_CLAVE
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          envVarKey: DB_CLAVE
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+
+  - type: web
+    name: arena-ep3-gateway
+    runtime: docker
+    branch: main
+    region: virginia
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - fromGroup: arena-ep3-runtime
+      - key: MODULO
+        value: "msvc-gateway"
+      - key: PORT
+        value: "8080"
+      - key: CORS_ORIGENES
+        value: "https://esports-arena-managerv2.vercel.app"
+      - key: USER_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-user
+          type: pserv
+          property: hostport
+      - key: GAME_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-game
+          type: pserv
+          property: hostport
+      - key: TEAM_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-team
+          type: pserv
+          property: hostport
+      - key: TOURNAMENT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-tournament
+          type: pserv
+          property: hostport
+      - key: REGISTRATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-registration
+          type: pserv
+          property: hostport
+      - key: MATCH_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-match
+          type: pserv
+          property: hostport
+      - key: RESULT_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-result
+          type: pserv
+          property: hostport
+      - key: RANKING_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-ranking
+          type: pserv
+          property: hostport
+      - key: SANCTION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-sanction
+          type: pserv
+          property: hostport
+      - key: PRIZE_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-prize
+          type: pserv
+          property: hostport
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-notification
+          type: pserv
+          property: hostport
+      - key: AUTH_SERVICE_HOSTPORT
+        fromService:
+          name: arena-ep3-auth
+          type: pserv
+          property: hostport
