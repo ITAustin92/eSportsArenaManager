@@ -12,4 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface MatchClient {
 	@GetMapping("/{id}")
 	MatchDTO getMatchById(@PathVariable Long id);
+
+	@org.springframework.web.bind.annotation.PutMapping("/{id}")
+	MatchDTO actualizar(
+		@PathVariable Long id,
+		@org.springframework.web.bind.annotation.RequestBody MatchDTO match
+	);
 }

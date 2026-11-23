@@ -79,6 +79,15 @@ public class GameServiceImpl implements GameService {
 		return this.gameRepository
 			.findById(id)
 			.map(element -> {
+				if (
+					!java.util.Objects.equals(element.getNombre(), juego.getNombre()) &&
+					this.gameRepository.findByNombre(juego.getNombre()).isPresent()
+				) {
+					throw new GameException("El nombre del juego ya está en uso");
+				}
+				element.setNombre(juego.getNombre());
+				element.setGenero(juego.getGenero());
+				if (juego.getImagen() != null) element.setImagen(juego.getImagen());
 				element.setModalidad(juego.getModalidad());
 				element.setJugadoresPorEquipo(juego.getJugadoresPorEquipo());
 				element.setEstado(juego.getEstado());

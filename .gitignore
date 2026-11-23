@@ -47,3 +47,6 @@ data/
 !.env.example
 
 node_modules/
+
+# Logs y procesos locales regenerables
+tmp/

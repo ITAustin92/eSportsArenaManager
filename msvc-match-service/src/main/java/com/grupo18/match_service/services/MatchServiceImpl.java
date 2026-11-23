@@ -44,65 +44,41 @@ public class MatchServiceImpl implements MatchService {
 			match.getAwayTeamId()
 		);
 
-		if (match.getHomeTeamId().equals(match.getAwayTeamId())) {
-			log.warn(
-				"Intento inválido: el equipo local y visitante son el mismo. ID: {}",
-				match.getHomeTeamId()
-			);
-			throw new MatchException("Un equipo no puede jugar contra sí mismo");
-		}
-
-		log.info("Validando torneo ID: {} contra tournament-service", match.getTournamentId());
-		TournamentDTO tournament = tournamentClient.getTournamentById(match.getTournamentId());
+		boolean individual =
+			match.getHomeUserId() != null &&
+			match.getAwayUserId() != null &&
+			match.getHomeTeamId() == null &&
+			match.getAwayTeamId() == null;
+		boolean equipos =
+			match.getHomeTeamId() != null &&
+			match.getAwayTeamId() != null &&
+			match.getHomeUserId() == null &&
+			match.getAwayUserId() == null;
+		if (!individual && !equipos) throw new MatchException("Selecciona dos jugadores o dos equipos");
+		Long local = individual ? match.getHomeUserId() : match.getHomeTeamId();
+		Long visita = individual ? match.getAwayUserId() : match.getAwayTeamId();
+		if (local.equals(visita)) throw new MatchException(
+			individual
+				? "Un jugador no puede jugar contra sí mismo"
+				: "Un equipo no puede jugar contra sí mismo"
+		);
+		TournamentDTO torneo = tournamentClient.getTournamentById(match.getTournamentId());
 		if (
-			tournament == null ||
-			(!"UPCOMING".equalsIgnoreCase(tournament.getState()) &&
-				!"IN_PROGRESS".equalsIgnoreCase(tournament.getState()))
-		) {
-			log.warn(
-				"Torneo ID {} no existe o no permite nuevos partidos. Estado: {}",
-				match.getTournamentId(),
-				tournament != null ? tournament.getState() : "null"
-			);
-			throw new MatchException("El torneo no existe o no permite nuevos partidos");
-		}
-
-		log.info(
-			"Validando inscripción del equipo local ID: {} en torneo ID: {}",
-			match.getHomeTeamId(),
-			match.getTournamentId()
+			torneo == null || !java.util.Set.of("UPCOMING", "IN_PROGRESS").contains(torneo.getState())
+		) throw new MatchException("El torneo no existe o no permite nuevos partidos");
+		boolean localInscrito = individual
+			? registrationClient.isPlayerRegisteredInTournament(local, match.getTournamentId())
+			: registrationClient.isTeamRegisteredInTournament(local, match.getTournamentId());
+		boolean visitaInscrita = individual
+			? registrationClient.isPlayerRegisteredInTournament(visita, match.getTournamentId())
+			: registrationClient.isTeamRegisteredInTournament(visita, match.getTournamentId());
+		if (!localInscrito) throw new MatchException("El equipo local no está inscrito en este torneo");
+		if (!visitaInscrita) throw new MatchException(
+			"El equipo visitante no está inscrito en este torneo"
 		);
-		boolean isHomeRegistered = registrationClient.isTeamRegisteredInTournament(
-			match.getHomeTeamId(),
-			match.getTournamentId()
-		);
-		if (!isHomeRegistered) {
-			log.warn(
-				"Equipo local ID: {} no está inscrito en torneo ID: {}",
-				match.getHomeTeamId(),
-				match.getTournamentId()
-			);
-			throw new MatchException("El equipo local no está inscrito en este torneo");
-		}
-
-		log.info(
-			"Validando inscripción del equipo visitante ID: {} en torneo ID: {}",
-			match.getAwayTeamId(),
-			match.getTournamentId()
-		);
-		boolean isAwayRegistered = registrationClient.isTeamRegisteredInTournament(
-			match.getAwayTeamId(),
-			match.getTournamentId()
-		);
-		if (!isAwayRegistered) {
-			log.warn(
-				"Equipo visitante ID: {} no está inscrito en torneo ID: {}",
-				match.getAwayTeamId(),
-				match.getTournamentId()
-			);
-			throw new MatchException("El equipo visitante no está inscrito en este torneo");
-		}
-
+		match.setMatchId(null);
+		match.setHomeScore(null);
+		match.setAwayScore(null);
 		match.setStatus("SCHEDULED");
 		Match saved = matchRepository.save(match);
 		log.info(
@@ -150,6 +126,7 @@ public class MatchServiceImpl implements MatchService {
 			return new MatchException("Partido no encontrado");
 		});
 		existing.setMatchDate(match.getMatchDate());
+		existing.setRound(match.getRound());
 		existing.setStatus(match.getStatus());
 		existing.setHomeScore(match.getHomeScore());
 		existing.setAwayScore(match.getAwayScore());

@@ -11,7 +11,10 @@ import lombok.ToString;
 @Entity
 @Table(
 	name = "rankings",
-	uniqueConstraints = { @UniqueConstraint(columnNames = { "tournament_id", "team_id" }) }
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "tournament_id", "team_id" }),
+		@UniqueConstraint(columnNames = { "tournament_id", "user_id" }),
+	}
 )
 @Getter
 @Setter
@@ -28,9 +31,11 @@ public class Ranking {
 	@Column(name = "tournament_id", nullable = false)
 	private Long tournamentId;
 
-	@NotNull(message = "El ID del equipo no puede ser nulo")
-	@Column(name = "team_id", nullable = false)
+	@Column(name = "team_id")
 	private Long teamId;
+
+	@Column(name = "user_id")
+	private Long userId;
 
 	@Min(value = 0, message = "Los puntos no pueden ser negativos")
 	@Column(nullable = false)

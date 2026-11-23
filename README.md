@@ -94,9 +94,14 @@ incluido corresponde a demostración local y no sustituye los perfiles de produc
 - Partidas: campo `round` opcional para agrupar rondas.
 - `GET /api/v1/users/public` solo expone id y nickname; no publica correos.
 
-La API de partidas y rankings heredada sigue identificando equipos. La inscripción
-individual está implementada, pero el registro de resultados y clasificación
-individual requiere extender esos contratos antes de anunciar un ciclo 1v1 completo.
+Las partidas admiten pares de equipos o pares de jugadores. Los resultados usan
+winnerTeamId o winnerUserId según la modalidad y validan el marcador. La clasificación
+mantiene una contribución por partida: reenviar reemplaza ese aporte, corregir el
+ganador retira el anterior y anular elimina sus puntos. La actualización se completa
+dentro de una transacción; PostgreSQL agrega un bloqueo por torneo. H2/MySQL deben
+usar una sola instancia de ranking-service. React permite programar partidas y
+registrar resultados como ADMIN, y el perfil incluye estadísticas individuales.
+Los premios conservan su contrato de asignación por equipos.
 
 ## Documentación y salud
 
@@ -109,10 +114,24 @@ individual requiere extender esos contratos antes de anunciar un ciclo 1v1 compl
 
 ## Estado de comprobación
 
-Los 14 módulos compilaron con Java 21 mediante `mvnw compile`. No se ejecutaron las
-pruebas ni se levantó el ecosistema completo. Las pruebas Java del ZIP deben adaptarse
-al nuevo contrato de reglas y clientes antes de usar sus resultados como evidencia.
-No se ha realizado ningún despliegue ni se han creado recursos externos.
+Verificación del 23 de noviembre de 2026 con Java 21:
+
+- Suite completa `./mvnw.cmd test`: 153 pruebas aprobadas, sin fallos ni omisiones.
+- Los 14 servicios se levantaron localmente y respondieron en `/actuator/health`.
+- Desde el frontend separado se aprobaron 14 recorridos Playwright contra la API
+  real: cuentas, JWT, permisos, CRUD, inscripciones y cupos simultáneos.
+- Se corrigió la edición de juegos para guardar nombre y género, con una prueba
+  de regresión y validación de nombres duplicados.
+
+Los recursos de `src/test/resources/application.properties` de cada servicio aíslan
+las pruebas en H2 en memoria y desactivan Eureka. No comparten los archivos de base
+local ni necesitan que el ecosistema esté iniciado. Las pruebas de integración del
+frontend sí necesitan los servicios reales y datos de demostración; crean registros.
+Consultar el README del frontend para repetirlas.
+
+La verificación corresponde al modo local H2. El perfil PostgreSQL/MySQL, el
+arranque con Docker y el despliegue en la nube aún requieren validación propia.
+El despliegue externo y las pruebas con base persistente siguen pendientes.
 
 ## Repositorios separados
 
@@ -135,3 +154,24 @@ npm run format:check
 
 Prettier y su plugin de Java mantienen las tabulaciones y los saltos de línea.
 Java, Maven y Docker no dependen de estas herramientas para compilar los servicios.
+
+## Arranque local reproducible en Windows
+
+Compilar primero con Java 21 y `./mvnw.cmd package`. Después:
+
+```powershell
+./scripts/Start-Local.ps1 -InMemory
+```
+
+Ese modo carga los datos ficticios en bases temporales y no abre los archivos de
+base de desarrollo. Esperar a que el gateway resuelva el catálogo; Eureka puede
+necesitar tiempo adicional después de que la salud responda. Los logs y los
+procesos registrados quedan en `tmp/`, excluido de Git. Para detener exclusivamente
+los servicios iniciados por este script:
+
+```powershell
+./scripts/Stop-Local.ps1
+```
+
+La guía de despliegue y los documentos de entrega están en `docs/ep3/` del repositorio
+frontend. Los perfiles de producción requieren configuración y validación propias.

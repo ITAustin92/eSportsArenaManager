@@ -21,11 +21,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class RankingServiceTest {
 
+	@org.mockito.Mock
+	org.springframework.transaction.PlatformTransactionManager transacciones;
+
+	@org.junit.jupiter.api.BeforeEach
+	void prepararTransaccion() {
+		org.mockito.Mockito.lenient()
+			.when(transacciones.getTransaction(org.mockito.ArgumentMatchers.any()))
+			.thenAnswer(i -> new org.springframework.transaction.support.SimpleTransactionStatus());
+	}
+
 	@Mock
 	private RankingRepository rankingRepository;
 
 	@Mock
 	private TournamentClient tournamentClient;
+
+	@Mock
+	private com.grupo18.ranking_service.repositories.MatchContributionRepository contributions;
 
 	@InjectMocks
 	private RankingServiceImpl rankingService;
@@ -50,6 +63,7 @@ public class RankingServiceTest {
 		when(rankingRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
 		MatchResultUpdateDTO dto = new MatchResultUpdateDTO();
+		dto.setMatchId(1L);
 		dto.setTournamentId(1L);
 		dto.setWinnerTeamId(100L);
 		dto.setLoserTeamId(200L);
@@ -74,6 +88,7 @@ public class RankingServiceTest {
 		when(rankingRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
 		MatchResultUpdateDTO dto = new MatchResultUpdateDTO();
+		dto.setMatchId(1L);
 		dto.setTournamentId(1L);
 		dto.setWinnerTeamId(100L);
 		dto.setLoserTeamId(200L);
@@ -146,11 +161,12 @@ public class RankingServiceTest {
 	public void shouldThrowWhenTournamentFinished() {
 		// Given
 		TournamentDTO torneoFinalizado = new TournamentDTO();
-		torneoFinalizado.setState("FINISHED");
+		torneoFinalizado.setState("CANCELLED");
 
 		when(tournamentClient.getTournamentById(1L)).thenReturn(torneoFinalizado);
 
 		MatchResultUpdateDTO dto = new MatchResultUpdateDTO();
+		dto.setMatchId(1L);
 		dto.setTournamentId(1L);
 		dto.setWinnerTeamId(10L);
 		dto.setLoserTeamId(20L);

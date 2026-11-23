@@ -27,6 +27,12 @@ public class TeamServiceTest {
 	@InjectMocks
 	private TeamServiceImpl teamService;
 
+	@Mock
+	private com.grupo18.team_service.clients.GameClient juegos;
+
+	@Mock
+	private com.grupo18.team_service.clients.UserClient usuarios;
+
 	private Team teamPrueba;
 
 	@BeforeEach
@@ -37,7 +43,15 @@ public class TeamServiceTest {
 		teamPrueba.setCapitanId(10L);
 		teamPrueba.setJuegoPrincipalId(1L);
 		teamPrueba.setEstado("ACTIVO");
-		teamPrueba.setMiembros(new ArrayList<>());
+		var miembro = new MemberTeam();
+		miembro.setUsuarioId(10L);
+		teamPrueba.setMiembros(new ArrayList<>(List.of(miembro)));
+		var juego = new com.grupo18.team_service.models.dtos.GameDTO();
+		juego.setEstado("ACTIVO");
+		lenient().when(juegos.getGameById(1L)).thenReturn(juego);
+		var usuario = new com.grupo18.team_service.models.dtos.UserDTO();
+		usuario.setState("ACTIVO");
+		lenient().when(usuarios.getUserById(anyLong())).thenReturn(usuario);
 	}
 
 	@Test
@@ -123,7 +137,10 @@ public class TeamServiceTest {
 		cambios.setNombre("Los Invencibles");
 		cambios.setCapitanId(11L);
 		cambios.setEstado("ACTIVO");
-		cambios.setMiembros(new ArrayList<>());
+		cambios.setJuegoPrincipalId(1L);
+		var miembro = new MemberTeam();
+		miembro.setUsuarioId(11L);
+		cambios.setMiembros(new ArrayList<>(List.of(miembro)));
 
 		when(teamRepository.findById(1L)).thenReturn(Optional.of(teamPrueba));
 		when(teamRepository.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));

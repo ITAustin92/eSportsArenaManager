@@ -12,4 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface RegistrationClient {
 	@GetMapping("/exists")
 	boolean isTeamRegisteredInTournament(@RequestParam Long teamId, @RequestParam Long tournamentId);
+
+	@GetMapping("/exists-player")
+	boolean isPlayerRegisteredInTournament(
+		@RequestParam Long userId,
+		@RequestParam Long tournamentId
+	);
 }

@@ -26,6 +26,12 @@ public class MatchController {
 	@Autowired
 	private MatchService matchService;
 
+	@GetMapping
+	@Operation(summary = "Listado de partidas para historial y estadísticas")
+	public ResponseEntity<List<Match>> listar() {
+		return ResponseEntity.ok(matchService.findAll());
+	}
+
 	@PutMapping("/{id}")
 	@Operation(
 		summary = "Actualizacion de partido",

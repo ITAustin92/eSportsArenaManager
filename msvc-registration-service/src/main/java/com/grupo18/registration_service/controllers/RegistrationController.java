@@ -253,4 +253,17 @@ public class RegistrationController {
 			);
 		}
 	}
+
+	@GetMapping("/exists-player")
+	public ResponseEntity<Boolean> jugadorInscrito(
+		@RequestParam Long userId,
+		@RequestParam Long tournamentId
+	) {
+		return ResponseEntity.ok(
+			registros
+				.findByUserIdAndTournamentId(userId, tournamentId)
+				.filter(r -> !java.util.Set.of("CANCELLED", "REJECTED").contains(r.getStatus()))
+				.isPresent()
+		);
+	}
 }

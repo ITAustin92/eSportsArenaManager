@@ -3,224 +3,286 @@ package com.grupo18.registration_service.services;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.grupo18.registration_service.clients.TeamClient;
-import com.grupo18.registration_service.clients.TournamentClient;
-import com.grupo18.registration_service.exceptions.RegistrationException;
+import com.grupo18.registration_service.clients.*;
 import com.grupo18.registration_service.models.Registration;
-import com.grupo18.registration_service.models.dtos.TeamDTO;
-import com.grupo18.registration_service.models.dtos.TournamentDTO;
+import com.grupo18.registration_service.models.dtos.*;
 import com.grupo18.registration_service.repositories.RegistrationRepository;
-import java.util.List;
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import java.time.*;
+import java.util.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
-public class RegistrationServiceTest {
+class RegistrationServiceTest {
 
 	@Mock
-	private RegistrationRepository registrationRepository;
+	RegistrationRepository registrationRepository;
 
 	@Mock
-	private TeamClient teamClient;
+	TeamClient teamClient;
 
 	@Mock
-	private TournamentClient tournamentClient;
+	TournamentClient tournamentClient;
+
+	@Mock
+	GameClient gameClient;
+
+	@Mock
+	UserClient userClient;
+
+	@Mock
+	SanctionClient sanctionClient;
+
+	@Mock
+	PlatformTransactionManager transacciones;
 
 	@InjectMocks
-	private RegistrationServiceImpl registrationService;
+	RegistrationServiceImpl servicio;
 
-	private Registration registrationPrueba;
-	private TeamDTO teamPrueba;
-	private TournamentDTO tournamentPrueba;
+	Registration solicitud;
+	TournamentDTO torneo;
+	TeamDTO equipo;
+	GameDTO juego;
 
 	@BeforeEach
-	public void setUp() {
-		registrationPrueba = new Registration();
-		registrationPrueba.setRegistrationId(1L);
-		registrationPrueba.setTeamId(100L);
-		registrationPrueba.setTournamentId(10L);
+	void preparar() {
+		ReflectionTestUtils.setField(servicio, "jdbcUrl", "jdbc:h2:mem:pruebas");
+		lenient()
+			.when(transacciones.getTransaction(any()))
+			.thenAnswer(i -> new SimpleTransactionStatus());
+		lenient()
+			.when(registrationRepository.saveAndFlush(any()))
+			.thenAnswer(i -> i.getArgument(0));
+		solicitud = new Registration();
+		solicitud.setTeamId(100L);
+		solicitud.setTournamentId(10L);
+		solicitud.setStatus("PENDING");
+		torneo = new TournamentDTO();
+		torneo.setTournamentId(10L);
+		torneo.setGameId(1L);
+		torneo.setState("UPCOMING");
+		torneo.setStartDate(LocalDate.now().plusDays(2));
+		torneo.setRegistrationDeadline(Instant.now().plusSeconds(3600));
+		torneo.setMaxParticipants(2);
+		juego = new GameDTO();
+		juego.setEstado("ACTIVO");
+		juego.setJugadoresPorEquipo(2);
+		equipo = new TeamDTO();
+		equipo.setId(100L);
+		equipo.setEstado("ACTIVO");
+		equipo.setJuegoPrincipalId(1L);
+		var uno = new TeamDTO.MemberDTO();
+		uno.setUsuarioId(2L);
+		var dos = new TeamDTO.MemberDTO();
+		dos.setUsuarioId(3L);
+		equipo.setMiembros(List.of(uno, dos));
+		lenient().when(tournamentClient.getTournamentById(10L)).thenReturn(torneo);
+		lenient().when(gameClient.obtener(1L)).thenReturn(juego);
+		lenient().when(teamClient.getTeamById(100L)).thenReturn(equipo);
+		var jugador = new UserDTO();
+		jugador.setEstado("ACTIVO");
+		lenient().when(userClient.obtener(anyLong())).thenReturn(jugador);
+	}
 
-		teamPrueba = new TeamDTO();
-		teamPrueba.setId(100L);
-		teamPrueba.setEstado("ACTIVO");
-
-		tournamentPrueba = new TournamentDTO();
-		tournamentPrueba.setTournamentId(10L);
-		tournamentPrueba.setState("UPCOMING");
+	private void rechaza(HttpStatus estado, Runnable accion) {
+		assertThatThrownBy(accion::run).isInstanceOfSatisfying(ResponseStatusException.class, fallo ->
+			assertThat(fallo.getStatusCode()).isEqualTo(estado)
+		);
+		verify(registrationRepository, never()).saveAndFlush(any());
 	}
 
 	@Test
-	@DisplayName("Debe crear una inscripción válida")
-	public void shouldSaveRegistration() {
+	void creaEquipoValidoConIdDelServidor() {
+		solicitud.setRegistrationId(999L);
+		var creado = servicio.save(solicitud);
+		assertThat(creado.getRegistrationId()).isNull();
+		assertThat(creado.getStatus()).isEqualTo("PENDING");
+		assertThat(creado.getRegistrationDate()).isNotNull();
+		verify(transacciones).commit(any());
+	}
+
+	@Test
+	void creaInscripcionIndividual() {
+		solicitud.setTeamId(null);
+		solicitud.setUserId(2L);
+		juego.setJugadoresPorEquipo(1);
+		assertThat(servicio.save(solicitud).getUserId()).isEqualTo(2L);
+		verifyNoInteractions(teamClient);
+	}
+
+	@Test
+	void rechazaParticipanteDuplicado() {
 		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
-			Optional.empty()
+			Optional.of(solicitud)
 		);
-		when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
-		when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
-		when(registrationRepository.save(any(Registration.class))).thenAnswer(inv ->
-			inv.getArgument(0)
-		);
-
-		Registration result = registrationService.save(registrationPrueba);
-
-		assertThat(result.getStatus()).isEqualTo("PENDING");
-		assertThat(result.getRegistrationDate()).isNotNull();
-		verify(registrationRepository, times(1)).save(registrationPrueba);
+		rechaza(HttpStatus.CONFLICT, () -> servicio.save(solicitud));
+		verify(transacciones).rollback(any());
 	}
 
 	@Test
-	@DisplayName("Debe lanzar excepción si el equipo ya está inscrito en el torneo")
-	public void shouldThrowWhenAlreadyRegistered() {
+	void permiteReinscribirCanceladoSinDuplicarFila() {
+		var anterior = new Registration();
+		anterior.setRegistrationId(8L);
+		anterior.setStatus("CANCELLED");
 		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
-			Optional.of(registrationPrueba)
+			Optional.of(anterior)
 		);
-
-		assertThatThrownBy(() -> registrationService.save(registrationPrueba))
-			.isInstanceOf(RegistrationException.class)
-			.hasMessage("El equipo ya se encuentra inscrito en este torneo");
-		verify(registrationRepository, never()).save(any(Registration.class));
+		assertThat(servicio.save(solicitud).getRegistrationId()).isEqualTo(8L);
+		assertThat(anterior.getStatus()).isEqualTo("PENDING");
 	}
 
 	@Test
-	@DisplayName("Debe lanzar excepción si el equipo no está activo")
-	public void shouldThrowWhenTeamNotActive() {
-		teamPrueba.setEstado("INACTIVO");
+	void rechazaEquipoInactivo() {
+		equipo.setEstado("INACTIVO");
+		rechaza(HttpStatus.CONFLICT, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaTorneoFinalizado() {
+		torneo.setState("FINISHED");
+		rechaza(HttpStatus.CONFLICT, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaPlazoVencido() {
+		torneo.setRegistrationDeadline(Instant.now().minusSeconds(1));
+		rechaza(HttpStatus.CONFLICT, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaCuposLlenos() {
+		var uno = new Registration();
+		uno.setRegistrationId(1L);
+		uno.setStatus("PENDING");
+		var dos = new Registration();
+		dos.setRegistrationId(2L);
+		dos.setStatus("ACCEPTED");
+		when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(uno, dos));
+		rechaza(HttpStatus.CONFLICT, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void canceladosNoOcupanCupo() {
+		var cancelado = new Registration();
+		cancelado.setRegistrationId(4L);
+		cancelado.setStatus("CANCELLED");
+		torneo.setMaxParticipants(1);
+		when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(cancelado));
+		assertThat(servicio.save(solicitud).getStatus()).isEqualTo("PENDING");
+	}
+
+	@Test
+	void rechazaJuegoDistinto() {
+		equipo.setJuegoPrincipalId(9L);
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaEquipoIncompleto() {
+		equipo.setMiembros(equipo.getMiembros().subList(0, 1));
+		rechaza(HttpStatus.CONFLICT, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaIntegrantesDuplicados() {
+		equipo.setMiembros(List.of(equipo.getMiembros().get(0), equipo.getMiembros().get(0)));
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaSancionVigente() {
+		var sancion = new SanctionDTO();
+		sancion.setStatus("ACTIVE");
+		sancion.setTournamentId(10L);
+		when(sanctionClient.porUsuario(2L)).thenReturn(List.of(sancion));
+		rechaza(HttpStatus.FORBIDDEN, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void sancionDeOtroTorneoNoBloquea() {
+		var sancion = new SanctionDTO();
+		sancion.setStatus("ACTIVE");
+		sancion.setTournamentId(99L);
+		when(sanctionClient.porEquipo(100L)).thenReturn(List.of(sancion));
+		assertThat(servicio.save(solicitud).getStatus()).isEqualTo("PENDING");
+	}
+
+	@Test
+	void rechazaDosParticipantesEnUnaSolicitud() {
+		solicitud.setUserId(2L);
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaSolicitudSinParticipante() {
+		solicitud.setTeamId(null);
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaEquipoEnTorneoIndividual() {
+		juego.setJugadoresPorEquipo(1);
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void rechazaJugadorSoloEnTorneoPorEquipos() {
+		solicitud.setTeamId(null);
+		solicitud.setUserId(2L);
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.save(solicitud));
+	}
+
+	@Test
+	void confirmaExcluyendoSuPropioCupo() {
+		solicitud.setRegistrationId(1L);
+		torneo.setMaxParticipants(1);
+		when(registrationRepository.findById(1L)).thenReturn(Optional.of(solicitud));
+		when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(solicitud));
+		assertThat(servicio.updateStatus(1L, "ACCEPTED").getStatus()).isEqualTo("ACCEPTED");
+	}
+
+	@Test
+	void cancelaAunqueHayaCerradoElTorneo() {
+		when(registrationRepository.findById(1L)).thenReturn(Optional.of(solicitud));
+		servicio.cancelById(1L);
+		assertThat(solicitud.getStatus()).isEqualTo("CANCELLED");
+		verifyNoInteractions(tournamentClient);
+	}
+
+	@Test
+	void actualizarInexistenteDevuelve404() {
+		rechaza(HttpStatus.NOT_FOUND, () -> servicio.updateStatus(9999L, "ACCEPTED"));
+	}
+
+	@Test
+	void rechazaEstadoDesconocido() {
+		rechaza(HttpStatus.BAD_REQUEST, () -> servicio.updateStatus(1L, "OTRO"));
+	}
+
+	@Test
+	void distingueInscripcionCanceladaDeVigente() {
 		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
-			Optional.empty()
+			Optional.of(solicitud)
 		);
-		when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
-
-		assertThatThrownBy(() -> registrationService.save(registrationPrueba))
-			.isInstanceOf(RegistrationException.class)
-			.hasMessageContaining("El equipo no existe o no está activo");
-		verify(registrationRepository, never()).save(any(Registration.class));
+		assertThat(servicio.existsByTeamIdAndTournamentId(100L, 10L)).isTrue();
+		solicitud.setStatus("CANCELLED");
+		assertThat(servicio.existsByTeamIdAndTournamentId(100L, 10L)).isFalse();
 	}
 
 	@Test
-	@DisplayName("Debe lanzar excepción si el torneo no admite inscripciones")
-	public void shouldThrowWhenTournamentNotUpcoming() {
-		tournamentPrueba.setState("FINISHED");
-		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
-			Optional.empty()
-		);
-		when(teamClient.getTeamById(100L)).thenReturn(teamPrueba);
-		when(tournamentClient.getTournamentById(10L)).thenReturn(tournamentPrueba);
-
-		assertThatThrownBy(() -> registrationService.save(registrationPrueba))
-			.isInstanceOf(RegistrationException.class)
-			.hasMessageContaining("El torneo no existe o no admite nuevas inscripciones");
-		verify(registrationRepository, never()).save(any(Registration.class));
-	}
-
-	@Test
-	@DisplayName("Debe actualizar el estado de una inscripción")
-	public void shouldUpdateStatus() {
-		when(registrationRepository.findById(1L)).thenReturn(Optional.of(registrationPrueba));
-		when(registrationRepository.save(any(Registration.class))).thenReturn(registrationPrueba);
-
-		Registration result = registrationService.updateStatus(1L, "ACCEPTED");
-
-		assertThat(result.getStatus()).isEqualTo("ACCEPTED");
-		verify(registrationRepository, times(1)).save(registrationPrueba);
-	}
-
-	@Test
-	@DisplayName("Debe lanzar excepción al actualizar inscripción inexistente")
-	public void shouldThrowWhenUpdateNotFound() {
-		when(registrationRepository.findById(9999L)).thenReturn(Optional.empty());
-
-		assertThatThrownBy(() -> registrationService.updateStatus(9999L, "ACCEPTED"))
-			.isInstanceOf(RegistrationException.class)
-			.hasMessage("Inscripción no encontrada");
-	}
-
-	@Test
-	@DisplayName("Debe cancelar una inscripción")
-	public void shouldCancelRegistration() {
-		when(registrationRepository.findById(1L)).thenReturn(Optional.of(registrationPrueba));
-		when(registrationRepository.save(any(Registration.class))).thenReturn(registrationPrueba);
-
-		registrationService.cancelById(1L);
-
-		assertThat(registrationPrueba.getStatus()).isEqualTo("CANCELLED");
-		verify(registrationRepository, times(1)).save(registrationPrueba);
-	}
-
-	@Test
-	@DisplayName("Debe listar todas las inscripciones")
-	public void shouldListAllRegistrations() {
-		// Given
-		when(registrationRepository.findAll()).thenReturn(List.of(registrationPrueba));
-
-		// When
-		List<Registration> result = registrationService.findAll();
-
-		// Then
-		assertThat(result).hasSize(1);
-		verify(registrationRepository, times(1)).findAll();
-	}
-
-	@Test
-	@DisplayName("Debe buscar inscripciones por equipo")
-	public void shouldFindByTeamId() {
-		// Given
-		when(registrationRepository.findByTeamId(100L)).thenReturn(List.of(registrationPrueba));
-
-		// When
-		List<Registration> result = registrationService.findByTeamId(100L);
-
-		// Then
-		assertThat(result).hasSize(1);
-		verify(registrationRepository, times(1)).findByTeamId(100L);
-	}
-
-	@Test
-	@DisplayName("Debe buscar inscripciones por torneo")
-	public void shouldFindByTournamentId() {
-		// Given
-		when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(registrationPrueba));
-
-		// When
-		List<Registration> result = registrationService.findByTournamentId(10L);
-
-		// Then
-		assertThat(result).hasSize(1);
-		verify(registrationRepository, times(1)).findByTournamentId(10L);
-	}
-
-	@Test
-	@DisplayName("Debe verificar si un equipo está inscrito en un torneo")
-	public void shouldCheckIfTeamIsRegistered() {
-		// Given
-		when(registrationRepository.findByTeamIdAndTournamentId(100L, 10L)).thenReturn(
-			Optional.of(registrationPrueba)
-		);
-
-		// When
-		boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 10L);
-
-		// Then
-		assertThat(result).isTrue();
-	}
-
-	@Test
-	@DisplayName("Debe retornar false si el equipo no está inscrito")
-	public void shouldReturnFalseWhenNotRegistered() {
-		// Given
-		when(registrationRepository.findByTeamIdAndTournamentId(100L, 99L)).thenReturn(
-			Optional.empty()
-		);
-
-		// When
-		boolean result = registrationService.existsByTeamIdAndTournamentId(100L, 99L);
-
-		// Then
-		assertThat(result).isFalse();
+	void delegaConsultasAlRepositorio() {
+		when(registrationRepository.findAll()).thenReturn(List.of(solicitud));
+		when(registrationRepository.findByTeamId(100L)).thenReturn(List.of(solicitud));
+		when(registrationRepository.findByTournamentId(10L)).thenReturn(List.of(solicitud));
+		assertThat(servicio.findAll()).containsExactly(solicitud);
+		assertThat(servicio.findByTeamId(100L)).containsExactly(solicitud);
+		assertThat(servicio.findByTournamentId(10L)).containsExactly(solicitud);
 	}
 }

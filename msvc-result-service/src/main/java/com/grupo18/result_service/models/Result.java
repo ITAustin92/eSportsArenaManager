@@ -24,9 +24,10 @@ public class Result {
 	@Column(name = "match_id", nullable = false, unique = true)
 	private Long matchId;
 
-	@NotNull(message = "The winner team ID cannot be null")
-	@Column(name = "winner_team_id", nullable = false)
+	@Column(name = "winner_team_id")
 	private Long winnerTeamId;
+
+	private Long winnerUserId;
 
 	@Column(name = "home_score")
 	private Integer homeScore;

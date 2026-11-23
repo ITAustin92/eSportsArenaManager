@@ -11,4 +11,5 @@ public interface RankingRepository extends JpaRepository<Ranking, Long> {
 	List<Ranking> findByTournamentIdOrderByPointsDesc(Long tournamentId);
 
 	Optional<Ranking> findByTournamentIdAndTeamId(Long tournamentId, Long teamId);
+	Optional<Ranking> findByTournamentIdAndUserId(Long tournamentId, Long userId);
 }

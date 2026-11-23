@@ -53,6 +53,7 @@ public class ResultServiceTest {
 		matchPrueba.setHomeTeamId(100L);
 		matchPrueba.setAwayTeamId(200L);
 		matchPrueba.setStatus("FINISHED");
+		lenient().when(matchClient.getMatchById(10L)).thenReturn(matchPrueba);
 	}
 
 	@Test
@@ -101,7 +102,7 @@ public class ResultServiceTest {
 
 		assertThatThrownBy(() -> resultService.save(resultPrueba))
 			.isInstanceOf(ResultException.class)
-			.hasMessage("El ganador debe ser uno de los equipos que jugó el partido");
+			.hasMessageContaining("El ganador debe ser uno de los equipos que jug");
 		verify(resultRepository, never()).save(any(Result.class));
 	}
 
@@ -200,7 +201,7 @@ public class ResultServiceTest {
 		Result cambios = new Result();
 		cambios.setHomeScore(3);
 		cambios.setAwayScore(1);
-		cambios.setWinnerTeamId(10L);
+		cambios.setWinnerTeamId(100L);
 
 		when(resultRepository.findById(1L)).thenReturn(Optional.of(resultPrueba));
 		when(resultRepository.save(any(Result.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -211,7 +212,7 @@ public class ResultServiceTest {
 		// Then
 		assertThat(updated.getHomeScore()).isEqualTo(3);
 		assertThat(updated.getAwayScore()).isEqualTo(1);
-		assertThat(updated.getWinnerTeamId()).isEqualTo(10L);
+		assertThat(updated.getWinnerTeamId()).isEqualTo(100L);
 		verify(resultRepository, times(1)).save(any(Result.class));
 	}
 
@@ -226,5 +227,39 @@ public class ResultServiceTest {
 			.isInstanceOf(ResultException.class)
 			.hasMessage("Resultado no encontrado");
 		verify(resultRepository, never()).save(any(Result.class));
+	}
+
+	@Test
+	void resultadoIndividualEnviaJugadorAlRanking() {
+		matchPrueba.setHomeTeamId(null);
+		matchPrueba.setAwayTeamId(null);
+		matchPrueba.setHomeUserId(2L);
+		matchPrueba.setAwayUserId(3L);
+		resultPrueba.setWinnerTeamId(null);
+		resultPrueba.setWinnerUserId(2L);
+		when(resultRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+		resultService.save(resultPrueba);
+		var captor = org.mockito.ArgumentCaptor.forClass(
+			com.grupo18.result_service.models.dtos.MatchResultUpdateDTO.class
+		);
+		verify(rankingClient).updateRanking(captor.capture());
+		assertThat(captor.getValue().getWinnerUserId()).isEqualTo(2L);
+		assertThat(captor.getValue().getLoserUserId()).isEqualTo(3L);
+		assertThat(captor.getValue().getWinnerTeamId()).isNull();
+		verify(matchClient).actualizar(eq(10L), any());
+	}
+
+	@Test
+	void rechazaGanadorContrarioAlMarcador() {
+		resultPrueba.setWinnerTeamId(200L);
+		assertThatThrownBy(() -> resultService.save(resultPrueba)).hasMessageContaining("no coincide");
+		verifyNoInteractions(rankingClient);
+	}
+
+	@Test
+	void rechazaEmpateSinAlterarRanking() {
+		resultPrueba.setAwayScore(3);
+		assertThatThrownBy(() -> resultService.save(resultPrueba)).hasMessageContaining("sin empate");
+		verifyNoInteractions(rankingClient);
 	}
 }

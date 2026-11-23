@@ -144,11 +144,15 @@ public class GameServiceTest {
 
 		Game gameExistenteEnBd = new Game();
 		gameExistenteEnBd.setJuegoId(id);
+		gameExistenteEnBd.setNombre("Anterior");
+		gameExistenteEnBd.setGenero("Anterior");
 		gameExistenteEnBd.setModalidad("EQUIPOS");
 		gameExistenteEnBd.setJugadoresPorEquipo(5);
 		gameExistenteEnBd.setEstado("INACTIVO");
 
 		Game cambios = new Game();
+		cambios.setNombre("Nuevo nombre");
+		cambios.setGenero("Deportes");
 		cambios.setModalidad("INDIVIDUAL");
 		cambios.setJugadoresPorEquipo(1);
 		cambios.setEstado("ACTIVO");
@@ -160,6 +164,8 @@ public class GameServiceTest {
 		Game result = gameService.updateById(id, cambios);
 
 		// Assert
+		assertThat(result.getNombre()).isEqualTo("Nuevo nombre");
+		assertThat(result.getGenero()).isEqualTo("Deportes");
 		assertThat(result.getModalidad()).isEqualTo("INDIVIDUAL");
 		assertThat(result.getJugadoresPorEquipo()).isEqualTo(1);
 		assertThat(result.getEstado()).isEqualTo("ACTIVO");
@@ -167,6 +173,20 @@ public class GameServiceTest {
 
 		verify(gameRepository).findById(id);
 		verify(gameRepository, times(1)).save(any(Game.class));
+	}
+
+	@Test
+	void rechazaNombreDuplicadoAlEditar() {
+		var existente = new Game();
+		existente.setNombre("Original");
+		var cambios = new Game();
+		cambios.setNombre("Ocupado");
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(existente));
+		when(gameRepository.findByNombre("Ocupado")).thenReturn(Optional.of(new Game()));
+		assertThatThrownBy(() -> gameService.updateById(1L, cambios))
+			.isInstanceOf(GameException.class)
+			.hasMessage("El nombre del juego ya está en uso");
+		verify(gameRepository, never()).save(any());
 	}
 
 	@Test

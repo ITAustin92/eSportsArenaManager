@@ -214,4 +214,26 @@ public class MatchServiceTest {
 			.hasMessage("Partido no encontrado");
 		verify(matchRepository, never()).save(any(Match.class));
 	}
+
+	@Test
+	void permitePartidaIndividual() {
+		matchPrueba.setHomeTeamId(null);
+		matchPrueba.setAwayTeamId(null);
+		matchPrueba.setHomeUserId(2L);
+		matchPrueba.setAwayUserId(3L);
+		var torneo = new TournamentDTO();
+		torneo.setState("UPCOMING");
+		when(tournamentClient.getTournamentById(matchPrueba.getTournamentId())).thenReturn(torneo);
+		when(registrationClient.isPlayerRegisteredInTournament(anyLong(), anyLong())).thenReturn(true);
+		when(matchRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+		assertThat(matchService.save(matchPrueba).getHomeUserId()).isEqualTo(2L);
+		verify(registrationClient, never()).isTeamRegisteredInTournament(anyLong(), anyLong());
+	}
+
+	@Test
+	void rechazaParticipantesMezclados() {
+		matchPrueba.setHomeUserId(2L);
+		assertThatThrownBy(() -> matchService.save(matchPrueba)).isInstanceOf(MatchException.class);
+		verifyNoInteractions(matchRepository);
+	}
 }

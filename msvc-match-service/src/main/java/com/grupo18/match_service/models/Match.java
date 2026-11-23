@@ -27,13 +27,15 @@ public class Match {
 	@Column(name = "tournament_id", nullable = false)
 	private Long tournamentId;
 
-	@NotNull(message = "The home team ID cannot be null")
-	@Column(name = "home_team_id", nullable = false)
+	@Column(name = "home_team_id")
 	private Long homeTeamId;
 
-	@NotNull(message = "The away team ID cannot be null")
-	@Column(name = "away_team_id", nullable = false)
+	private Long homeUserId;
+
+	@Column(name = "away_team_id")
 	private Long awayTeamId;
+
+	private Long awayUserId;
 
 	// Resultados
 	@Min(value = 0, message = "The score cannot be negative")

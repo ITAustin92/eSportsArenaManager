@@ -35,63 +35,75 @@ public class ResultServiceImpl implements ResultService {
 
 	@Transactional
 	@Override
-	public Result save(Result result) {
-		log.info(
-			"Registrando resultado para partido ID: {}. Ganador equipo ID: {}",
-			result.getMatchId(),
-			result.getWinnerTeamId()
+	public synchronized Result save(Result result) {
+		MatchDTO match = partida(result.getMatchId());
+		if (resultRepository.existsByMatchId(result.getMatchId())) throw new ResultException(
+			"Ya existe un resultado registrado para este partido"
 		);
-
-		log.info("Consultando partido ID: {} al match-service", result.getMatchId());
-		MatchDTO match = matchClient.getMatchById(result.getMatchId());
-		if (match == null) {
-			log.warn("Partido ID: {} no encontrado al registrar resultado", result.getMatchId());
-			throw new ResultException("El partido reportado no existe");
-		}
-
-		if (resultRepository.existsByMatchId(result.getMatchId())) {
-			log.warn("Intento de registrar resultado duplicado para partido ID: {}", result.getMatchId());
-			throw new ResultException("Ya existe un resultado registrado para este partido");
-		}
-
-		if (
-			!result.getWinnerTeamId().equals(match.getHomeTeamId()) &&
-			!result.getWinnerTeamId().equals(match.getAwayTeamId())
-		) {
-			log.warn(
-				"Ganador inválido. Equipo ID: {} no participó en el partido ID: {}. " +
-					"Participantes: Local={}, Visitante={}",
-				result.getWinnerTeamId(),
-				result.getMatchId(),
-				match.getHomeTeamId(),
-				match.getAwayTeamId()
-			);
-			throw new ResultException("El ganador debe ser uno de los equipos que jugó el partido");
-		}
-
-		Long loserTeamId = result.getWinnerTeamId().equals(match.getHomeTeamId())
-			? match.getAwayTeamId()
-			: match.getHomeTeamId();
-		log.info("Perdedor determinado automáticamente: equipo ID: {}", loserTeamId);
-
-		MatchResultUpdateDTO updateDTO = new MatchResultUpdateDTO(
-			match.getTournamentId(),
-			result.getWinnerTeamId(),
-			loserTeamId
-		);
-		log.info("Notificando resultado al ranking-service. Torneo ID: {}", match.getTournamentId());
-		rankingClient.updateRanking(updateDTO);
-
+		validar(result, match);
+		result.setResultId(null);
 		result.setStatus("CONFIRMED");
-		Result saved = resultRepository.save(result);
-		log.info(
-			"Resultado ID {} registrado exitosamente. Ganador: equipo ID {}, Marcador: {}-{}",
-			saved.getResultId(),
-			saved.getWinnerTeamId(),
-			saved.getHomeScore(),
-			saved.getAwayScore()
+		Result guardado = resultRepository.save(result);
+		sincronizar(guardado, match, true);
+		return guardado;
+	}
+
+	private MatchDTO partida(Long id) {
+		MatchDTO match = matchClient.getMatchById(id);
+		if (match == null) throw new ResultException("El partido reportado no existe");
+		if ("CANCELLED".equals(match.getStatus())) throw new ResultException(
+			"La partida está cancelada"
 		);
-		return saved;
+		return match;
+	}
+
+	private void validar(Result r, MatchDTO m) {
+		boolean individual = m.getHomeUserId() != null && m.getAwayUserId() != null;
+		Long ganador = individual ? r.getWinnerUserId() : r.getWinnerTeamId();
+		Long local = individual ? m.getHomeUserId() : m.getHomeTeamId();
+		Long visita = individual ? m.getAwayUserId() : m.getAwayTeamId();
+		if (
+			ganador == null ||
+			(individual ? r.getWinnerTeamId() != null : r.getWinnerUserId() != null) ||
+			(!ganador.equals(local) && !ganador.equals(visita))
+		) throw new ResultException(
+			"El ganador debe ser uno de los equipos que jugó el partido o un jugador participante"
+		);
+		if (
+			r.getHomeScore() == null ||
+			r.getAwayScore() == null ||
+			r.getHomeScore() < 0 ||
+			r.getAwayScore() < 0 ||
+			r.getHomeScore().equals(r.getAwayScore())
+		) throw new ResultException("Ingresa marcadores no negativos y un ganador sin empate");
+		Long ganadorMarcador = r.getHomeScore() > r.getAwayScore() ? local : visita;
+		if (!ganador.equals(ganadorMarcador)) throw new ResultException(
+			"El ganador no coincide con el marcador"
+		);
+	}
+
+	private void sincronizar(Result r, MatchDTO m, boolean activo) {
+		boolean individual = m.getHomeUserId() != null;
+		Long ganador = individual ? r.getWinnerUserId() : r.getWinnerTeamId();
+		Long local = individual ? m.getHomeUserId() : m.getHomeTeamId();
+		Long visita = individual ? m.getAwayUserId() : m.getAwayTeamId();
+		Long perdedor = ganador.equals(local) ? visita : local;
+		var dto = new MatchResultUpdateDTO();
+		dto.setMatchId(r.getMatchId());
+		dto.setTournamentId(m.getTournamentId());
+		dto.setActive(activo);
+		if (individual) {
+			dto.setWinnerUserId(ganador);
+			dto.setLoserUserId(perdedor);
+		} else {
+			dto.setWinnerTeamId(ganador);
+			dto.setLoserTeamId(perdedor);
+		}
+		rankingClient.updateRanking(dto);
+		m.setStatus(activo ? "FINISHED" : "SCHEDULED");
+		m.setHomeScore(activo ? r.getHomeScore() : null);
+		m.setAwayScore(activo ? r.getAwayScore() : null);
+		matchClient.actualizar(r.getMatchId(), m);
 	}
 
 	@Transactional(readOnly = true)
@@ -125,36 +137,27 @@ public class ResultServiceImpl implements ResultService {
 
 	@Transactional
 	@Override
-	public Result updateById(Long id, Result result) {
-		log.info("Actualizando resultado con ID: {}", id);
-		Result existing = resultRepository.findById(id).orElseThrow(() -> {
-			log.warn("Resultado ID: {} no encontrado para actualizar", id);
-			return new ResultException("Resultado no encontrado");
-		});
-		existing.setHomeScore(result.getHomeScore());
-		existing.setAwayScore(result.getAwayScore());
-		existing.setWinnerTeamId(result.getWinnerTeamId());
-		Result updated = resultRepository.save(existing);
-		log.info(
-			"Resultado ID {} actualizado. Nuevo marcador: {}-{}, Ganador: equipo ID {}",
-			updated.getResultId(),
-			updated.getHomeScore(),
-			updated.getAwayScore(),
-			updated.getWinnerTeamId()
-		);
-		return updated;
+	public synchronized Result updateById(Long id, Result cambios) {
+		Result actual = findById(id);
+		MatchDTO match = partida(actual.getMatchId());
+		validar(cambios, match);
+		actual.setHomeScore(cambios.getHomeScore());
+		actual.setAwayScore(cambios.getAwayScore());
+		actual.setWinnerTeamId(cambios.getWinnerTeamId());
+		actual.setWinnerUserId(cambios.getWinnerUserId());
+		actual.setStatus("CONFIRMED");
+		Result guardado = resultRepository.save(actual);
+		sincronizar(guardado, match, true);
+		return guardado;
 	}
 
 	@Transactional
 	@Override
-	public void deleteById(Long id) {
-		log.info("Anulando resultado con ID: {}", id);
-		Result existing = resultRepository.findById(id).orElseThrow(() -> {
-			log.warn("Resultado ID: {} no encontrado para anular", id);
-			return new ResultException("Resultado no encontrado");
-		});
-		existing.setStatus("ANULADO");
-		resultRepository.save(existing);
-		log.info("Resultado ID {} anulado exitosamente", id);
+	public synchronized void deleteById(Long id) {
+		Result actual = findById(id);
+		MatchDTO match = partida(actual.getMatchId());
+		actual.setStatus("ANULADO");
+		resultRepository.save(actual);
+		sincronizar(actual, match, false);
 	}
 }
